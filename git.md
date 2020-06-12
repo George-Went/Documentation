@@ -48,6 +48,13 @@ shows the remote repository that the local repo is linked to
 This pushes the changes in the local remote to the remote repository
 on the master branch
 
+#### Additional Infomation 
+To see what your origin is: 
+```git remote -v```
+
+You can also save your repositories location so you only have to type ```git push```: 
+```git --no-pager branch -vv```
+If the response has a ```*``` before it, it has been saved as the main repository. 
 
 
 ## Connecting to existing repositories
