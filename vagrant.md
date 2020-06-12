@@ -3,6 +3,13 @@
 # Vagrant 
 Vagrant allows for virtualization of linux systems within a computer, allowing for projects to work within their own containerized environment (basically it means that you know what dependencies are installed onto a system) 
 
+### Installing a Virtulisation Software 
+To use vagrant, a pre-esixting virtulisation software needs to be installed. In our case, we can use virtualbox a common virtulisation software.
+
+```
+sudo apt-get install virtualbox
+```
+
 ## Installation 
 Download the vagrant packages from the [vagrant website](https://www.vagrantup.com/downloads.html) and move the files to your preffered directory location (if you dont know where this, a good starting location is /opt)
 
@@ -16,11 +23,16 @@ PATH allows vagrant to be run from various projects, without having to find / im
 This means that you can use the “vagrant” cmd anywhere on your linux system. 
 > To add the program permanently (on ubuntu), add the path to ```/etc/environment``` by modifying the file, adding ```:/opt/vagrant``` to the end of file (inside the quotation marks).
 
-### Installing a Virtulisation Software 
-To use vagrant, a pre-esixting virtulisation software needs to be installed. In our case, we can use virtualbox a common virtulisation software.
+Its directories seperated by a ```:``` 
 
+## Alternate Installation 
+If the download or your package manager doesnt work, you can also use ```wget``` to install the latest version:  
 ```
-sudo apt-get install virtualbox
+wget https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.deb
+```
+then run:   
+```
+sudo apt install ./vagrant_2.2.7_x86_64.deb
 ```
 
 ### Setting up a Vagrant VM 
@@ -138,3 +150,62 @@ You should be able to see the active ssh connections that are allowed, and also
 
 Enabeling access for regular users 
 If the Root account uses a password, you can normally access the account using ```ssh user@server_address```
+
+
+
+
+
+
+
+## Homestead 
+When installing homestead, install into /home directory as a precaution. 
+```git clone https://github.com/laravel/homestead.git ~/Homestead```
+
+Once the homestead directory is cloned, run ```bash init.sh``` to create a ```homestead.yaml``` repository. 
+
+```yaml
+---
+ip: "192.168.10.10"
+memory: 2048
+cpus: 2
+provider: virtualbox
+
+authorize: ~/.ssh/id_rsa.pub ## RSA public key
+
+keys:
+    - ~/.ssh/id_rsa ## Private key file - very precious, keep secure
+
+folders:
+    - map: ~/Documents/Programming/Projects/PHP/Laravel-Boilerplate/ # map the computers folder to -
+      to: /vagrant/Laravel-Boilerplate/ # the folder inside the VM
+
+sites:
+    - map: boilerplate.test # URL want to access from computer browser
+      to:  /vagrant/Laravel-Boilerplate/public # what folder the user wants to access when they use the URL 
+
+databases:
+    - homestead
+
+features:
+    - mariadb: false
+    - ohmyzsh: false
+    - webdriver: false
+
+# ports:
+#     - send: 50000
+#       to: 5000
+#     - send: 7777
+#       to: 777
+#       protocol: udp
+
+```
+## Settings RSA Keys 
+RSA keys are the 
+```
+file ~/.ssh/id_rsa.pub 
+```
+when you 
+private key: ```file ~/.ssh/id_rsa```
+## Setting Hosts 
+To access a website via its adress, we normally have to go through a DNS server, for local hosts, we can use a program called mDNS that provides the services for locally hosted sites on your system. 
+

@@ -101,3 +101,4 @@ A fork is basically a clone of a project repository that is completely independe
 Forking a repository is usually done via the github UI, due to the fact that from git’s perspective, a fork is just another clone of the repository that is now uploaded into a different location ( something other than origin) which is tracked by githubs databases 
 
 Making a fork 
+```git clone https://github.com/YOUR-USERNAME/Spoon-Knife```
