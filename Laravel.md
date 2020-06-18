@@ -1,3 +1,5 @@
+# Setup 
+The requires programs are required to run a homestead environment 
 
 
 # Vagrant 
@@ -103,61 +105,7 @@ This is due to the vm failing to port forward its ssh port (2222), while vagrant
 
 ```
 
-One of the main things to know is that vagrant runs ontop of virtualbox, if you have vagrant, you will have virtualbox. If we open up the virtualbox GUI, we can see the VM's that have currently been created. One of the main issues with multiple vm's ruinning is the fact that sometimes ports can collide, leading to vm's being unable to connect to either public or private networks.
-
-> **Note:** To decomission a vagrant VM you must use ```vagrant destroy``` to remove the VM and any possibility that it could cause port collisions. 
-
-
-Default mysql port is 3306
-Deafult Mongo port is 27017
-
-Once we have done this, we can connect to the mysql server but are denied access to the root account, we can get around this by creating a new user and giving him permissions
-
-
-
-
-
-
-
-# Setting up the server 
-
->**Note:** This isnt needed on vagrant systems, but make sure to at least have a firewall on production systems.
-
-Access the Root account    
-```ssh root@serverip```  
-
-Add another user to the account for database usage  
-```adduser user```
-
-Give a user sudo access (root / superuser)  
-```usermod -aG sudo user```
-
-
-Adding a firewall to allow limited access to the server   
->**Note:** Uncomplicated FireWall (ufw) is installed by default on ubuntu but may need to be installed on other systems.  
-
-Check application list 
-```ufw app list```  
-
-Make sure that ssh connections are allowed 
-```ufw allow OpenSSH```
-
-## Enable the firewall 
-```ufw enable -y```
-
-```ufw status``` to see what apps are allowed 
-You should be able to see the active ssh connections that are allowed, and also  
-
-Enabeling access for regular users 
-If the Root account uses a password, you can normally access the account using ```ssh user@server_address```
-
-
-
-
-
-
-
-## Homestead 
+# Homestead 
 When installing homestead, install into /home directory as a precaution. 
 ```git clone https://github.com/laravel/homestead.git ~/Homestead```
 
@@ -214,12 +162,6 @@ private key: ```file ~/.ssh/id_rsa```
 Generating an ssh key: 
 ```ssh-keygen -t rsa -C "you@homestead"```
 
-
-
-
-
-
-
 ## Setting Hosts 
 To access a website via its adress, we normally have to go through a DNS server, for local hosts, we can use a program called mDNS that provides the services for small networks that dont have a dedicated name server (DNS). This is done automatically on linux systems, so we dont have to worry about it.
 
@@ -242,3 +184,63 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 
 ```
+
+
+## Composer 
+Installing composer:    
+```shell
+sudo apt-get install composer 
+```
+
+## Laravel 
+Once composer is installed, we can install laravel using the package manager:   
+```shell
+composer global require laravel/installer
+```
+### Creating the first project 
+We can boot up a boiler template with laravel using the following command:  
+```laravel new <name>```
+
+This pastes code into the folder that does the following:  
+- databases
+- views (MVC)
+- storage 
+- testing
+- configuration 
+
+
+### Migrating 
+Migrating allows laravel to make modifications to the database.
+```
+php artisan migrate
+```
+Initially this will run the three files located in `database/migrations`. When run again, php migrations will run any migrations that havent already be run.
+
+
+
+
+## blade template 
+```html
+<!doctype html>
+<html land="en">
+<head>
+   <meta charset="UTF-8">
+   <meta 
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximun-scale=1.0, minimum-scale=1.0" 
+   >
+   <meta
+      http-equiv="X-UA-Compatible"
+      content="ie-edge"
+   >
+   <title>Document</title>
+
+</head>
+<body>
+   <h1>Heading</h1>
+<body>
+</html>
+```
+
+
+
