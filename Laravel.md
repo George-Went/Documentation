@@ -197,7 +197,7 @@ Once composer is installed, we can install laravel using the package manager:
 ```shell
 composer global require laravel/installer
 ```
-### Creating the first project 
+## Creating the first project 
 We can boot up a boiler template with laravel using the following command:  
 ```laravel new <name>```
 
@@ -208,6 +208,76 @@ This pastes code into the folder that does the following:
 - testing
 - configuration 
 
+## Application structure 
+```shell
+/app
+/bootstrap
+/config
+/database
+/public
+/resources
+/routes
+/storage
+/tests
+/vendor
+   .env
+   .env.example
+   .gitattributes
+   .gitignore
+   artisan
+   phpunit.xml
+   readme.md
+   server.php
+```
+
+**app** 
+Application folder and contains the entire source code of the project. When a user first enters a website, this hadles scripts and exceptions.
+
+**Bootstrap**
+This include all the scripts that app needs to set up the site. It is not twitters 'bootstrap' which is a frontend add on.
+
+**Database**
+This directory incudes variosu paarameters for datbase functionality.
+
+**Public**
+THis is the root folder of the application, it functions in the same manner as a basic application, as the root. This contains the `index.php` initilisation script.
+
+**Resources**
+This contains the filres that enhance the web application. Images, css and other assets are stored here. 
+
+**Storage** 
+This contains the files neccesarry for site logging.
+
+**Tests**
+Unit tests are stored in this directory.
+
+**Vendor**
+Laravel is built ontop of composer depedancies (packages). This file containts all of these dependacies. if you've ever used node, its like the npm file.
+
+
+## Laravel Confiuration 
+### Environment Configuration 
+the laravel environent can be confugired using the `.env` file, which contains the necessary variables such a urls, database connections and ports for your application. This limits the need to 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Migrating 
 Migrating allows laravel to make modifications to the database.
@@ -215,6 +285,8 @@ Migrating allows laravel to make modifications to the database.
 php artisan migrate
 ```
 Initially this will run the three files located in `database/migrations`. When run again, php migrations will run any migrations that havent already be run.
+
+
 
 
 

@@ -83,7 +83,11 @@ P - php
 >**Note:** Most of what is below can be found at: 
 https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-ubuntu-18-04
 
-## Setting up Apache
+
+
+
+
+## 1 Setting up Apache
 you can install apache on ubuntus package manager, ```apt```:  
 ```sudo apt-get install apache2```
 
@@ -171,7 +175,7 @@ You can run MySQL commands, or exit using:
 
 
 
-## 3 Installing PHP 
+## 3 Installing PHP / mySQL
 PHP allows us to display dynamic content with data from a database such as MySQL 
 
 We can install php using - with some pacakges that help us use MySQL:  
@@ -213,10 +217,7 @@ Apache should now be serving your domain name. You can test this by navigating t
 
 
 
-
-
-
-## 4 Setting up Virtual Hosts
+## 4 Setting up Virtual Hosts (Not Manditory)
 When using apache, you can set up different *virtual* hosts to save different states of configuration.
 
 On ubuntu 18.04, apache has one set up by default to serve documents from the ```/var/www/html``` directory. 
@@ -241,30 +242,63 @@ And paste:
 ```html
 <html>
     <head>
-        <title>Welcome to dissertation!</title>
+        <title>Index 2</title>
     </head>
     <body>
-        <h1>Success!  The dissertation server block is working!</h1>
+        <h1>This is a second site running on the same IP</h1>
     </body>
 </html>
 ```
 
-In order for apache to serve the correct files, we need to create a virtual host file with the correct dirrectives.  Instead of modifying the default configuration file located at ```/etc/apache2/sites-available/000-default.conf``` directly, let’s make a new one at ```/etc/apache2/sites-available/dissertation.conf```:    
+In order for apache to serve the correct files, we need to create a virtual host file with the correct dirrectives.  Instead of modifying the default configuration file located at ```/etc/apache2/sites-available/000-default.conf``` directly, let’s make a new one at ```/etc/apache2/sites-available/boilerplate.conf```:    
 
-```sudo nano /etc/apache2/sites-available/dissertation.conf```
+```sudo nano /etc/apache2/sites-available/boilerplate.conf```
 
-Paste in the following code: 
+For each site use the following template:
+`/etc/apache2/sites-avalible/boilerplate.conf`
 ```conf
+<VirtualHost *:80>
+    # Admin email, Server Name (domain name) and any aliases
+    ServerAdmin admin@boilerplate.com
+    ServerName boilerplate.com
+    ServerAlias www.boilerplate.com
+
+    # Index file and Document Root (where the public files are located)
+    DocumentRoot /var/www/boilerplate/routes/index.html
+
+    # Custom log file locations
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+We also need to make changes to the httpd.conf file
+`/etc/apache2/sites-enabled/httpd.conf`
+```conf
+<VirtualHost *:80>
+    # This first-listed virtual host is also the default for *:80
+    ServerName boilerplate.localhost.com
+    ServerAlias boilerplate.com 
+    DocumentRoot "/var/www/boilerplate"
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName dissertation.localhost.com
+    DocumentRoot "/var/www/dissertation"
+</VirtualHost>
 
 ```
 
+
 Save and close the file when you are finished.
 
-Let’s enable the file with the a2ensite tool:   
+Let’s enable the file with the a2ensite tool (apache 2 enable site):   
 ```sudo a2ensite dissertation.conf``` 
 #
 Disable the default site defined in 000-default.conf:
 ```sudo a2dissite 000-default.conf```
+
+>**Note:** 000-default.conf is the "welcome to apache" default site
 
 Next, let’s test for configuration errors:
 ```sudo apache2ctl configtest```
@@ -274,9 +308,15 @@ You should see the following output:
 Output
 Syntax OK
 ```
+If not, configtest should usually report back on whats wrong with the file setup.
 
 Restart Apache to implement your changes:  
 ```sudo systemctl restart apache2```
+
+#### Setting Hosts 
+Even though we have out apache sites set up, if they dont have domain names (for example are located on localhost / 127.0.0.1 ) we can modify the hosts file to add the urls to our local IP address. 
+
+
 
 you can now go to ```http://dissertation.localhost/``` instead of ```http://localhost/``` due to your new fancy domian
 
@@ -417,6 +457,13 @@ If the root account now has the ```mysql_native_password``` as its plugin, the c
 
 
 
+
+
+## General Tips
+Checking that apache is running: `service apache2 status`  
+Checking that mySQL is running: `service mysql status`  
+Checking the active sites on apache: `cd /etc/apache2/sites-enabled`    
+quit vim / less: `SHIFT + :` + `q`   
 
 
 
