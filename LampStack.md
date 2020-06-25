@@ -322,7 +322,7 @@ you can now go to ```http://dissertation.localhost/``` instead of ```http://loca
 
 
 
-### Problems i have run into 
+### Problems I Have Run Into 
 
 **Default vhost file**  
 
@@ -455,6 +455,53 @@ mysql> SELECT user,authentication_string,plugin,host FROM mysql.user;
 If the root account now has the ```mysql_native_password``` as its plugin, the change worked and you can now log in as root with the chosen password
 
 
+### Problems I Have Run Into 
+
+When trying to access phpmyadmin, the following error comes up:  
+Errors have been detected on the server. 
+
+```
+Warning in ./libraries/plugin_interface.lib.php#551
+count(): Parameter must be an array or an object that implements Countable
+
+Backtrace
+
+./libraries/display_import.lib.php#371: PMA_pluginGetOptions(
+string 'Import',
+array,
+)
+./libraries/display_import.lib.php#456: PMA_getHtmlForImportOptionsFormat(array)
+./libraries/display_import.lib.php#691: PMA_getHtmlForImport(
+string '5ef4add4e9d69',
+string 'database',
+string 'hovercraft',
+string '',
+integer 2097152,
+array,
+NULL,
+NULL,
+string '',
+)
+./db_import.php#43: PMA_getImportDisplay(
+string 'database',
+string 'hovercraft',
+string '',
+integer 2097152,
+)
+```
+
+This is due to the version of phpmyadmin being outdated on ubuntus apt-get / centos yum repositories - you end up installing a depreciated (outdated) version. 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -464,7 +511,7 @@ Checking that apache is running: `service apache2 status`
 Checking that mySQL is running: `service mysql status`  
 Checking the active sites on apache: `cd /etc/apache2/sites-enabled`    
 quit vim / less: `SHIFT + :` + `q`   
-
+Accessing mysql via a terminal: `mysql -u root -p`
 
 
 
@@ -505,3 +552,51 @@ sudo ./manager-linux.run (or manager-linux-x64.run)
 
 We can stop XAMPP using:  
 ```sudo /opt/lampp/lampp stop```
+
+
+
+
+
+
+
+# AWS (Amazon Web Services)
+
+Note: Most of the infomation for this came from: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-lamp-amazon-linux-2.html#prepare-lamp-server
+
+You can use a EC2 (Elastic Container 2) virtual machine, hosted on AWS to host a LAMP server, allowing your server to already be set up with an IP and port configurations. (overall it just makes some of the steps easier)
+
+We can start by launching a EC2 virtual machine with a AMI (Amazon Machine Image). This can be picked from a variety of linux distrubutions or windows servers. 
+
+>**Note:** For a basic LAMP stack instace, you can follow through with the default settings that amazon used when generating a EC2 instance.
+
+For Step 6 of the generation - configuring security groups, you can set up the base ports for a LAMP stack as such: 
+```
+Type          Protocol    Port Range  Source Description
+SSH             TCP          22          0.0.0.0/0
+HTTP            TCP          80          0.0.0.0/0
+HTTP            TCP          80          ::/0
+MYSQL/Aurora    TCP         3306        0.0.0.0/0
+```
+
+### Creating a Key pair 
+This step will create (or re-use) a public-private key pair.
+You should download the `.pem` file, this contains the private part of the key to the server (think of it like the key to a lock)
+
+If your using a linux system, you will need to change the permissions of the private key. This can be done using: 
+```chmod 400 key-pair.pem```
+
+
+Generate the instance 
+
+## Connecting to the AWS instance 
+The main way that you can connect to your instace is via a remote SSH link.   
+
+Linux: 
+```ssh -i /path/my-key-pair.pem my-instance-user-name@my-instance-public-dns-name```
+
+For example:
+```
+ssh -i LAMPStack.pem ec2-user@ec2-18-132-39-13.eu-west-2.compute.amazonaws.com
+```
+
+>**Note:** when logging into the instance, the username is usually defaulted to `ec2-user`. Its recommended to log in as this user rather than root.
