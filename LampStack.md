@@ -600,3 +600,127 @@ ssh -i LAMPStack.pem ec2-user@ec2-18-132-39-13.eu-west-2.compute.amazonaws.com
 ```
 
 >**Note:** when logging into the instance, the username is usually defaulted to `ec2-user`. Its recommended to log in as this user rather than root.
+
+IF working correctly, your terminal should now be linked, showing files and data from the aws system rather than your own computer. 
+
+
+## Preparing the LAMP Server 
+First, to ensure that all of the software packages are up to date, we can run the package update manager using:  
+`sudo yum update -y`
+
+## Installing Require Content 
+We can now install the required packages for a LAMP server.
+```
+sudo yum install httpd -y
+sudo yum install php
+sudo yum install mysql
+```
+This will install apache,php,mysql to the instance.
+
+
+## Setting up the Stack
+
+### Setting up apache
+Run apache using: 
+`sudo service httpd start`  
+
+Set file presmissions using: 
+`sudo usermod -a -G apache ec2-user` 
+
+This will create a new user group called `apache` and add `ec2-user` into it.  
+
+Restart your connection by exiting using `exit` 
+
+We can see that we are in the apache group by using `groups`  
+
+Change the ownership of `/var/www` (the websites location) to the apache group.
+```sudo chown -R ec2-user:apache /var/www```
+
+We can add group read/write permission to `/var/www` using:
+```sudo chmod 2775 /var/www```
+
+Then: 
+`find /var/www -type d -exec sudo chmod 2775 {} \;`
+
+We can add group read/write permission recursivly to existing `/var/www` files using: 
+`find /var/www -type f -exec sudo chmod 0664 {} \;`
+
+The above code allows the ec2-user and any future members of the `apache` group to read, write, edit and delete files in the apache document root.
+
+We can test the above code by adding a new page and seeing if it appears on our server: 
+`echo "<?php phpinfo(); ?>" > /var/www/html/phpinfo.php`
+
+The above code will add the phpinfo.php page to our site root, for example: 
+`http://my.public.dns.amazonaws.com/phpinfo.php` 
+
+In my case this was: 
+http://ec2-18-132-39-13.eu-west-2.compute.amazonaws.com/phpinfo.php 
+
+
+### Setting up mysql 
+Start mysql using:   
+`sudo service mysqld start`
+
+If the service does not exist (meaning mysql is proberbly not installed) we can install mysql using:  
+`sudo yum install mysql mysql-server`
+
+We can secure the installation by running:   
+`sudo mysql_secure_installation`
+
+- Set a password (you can also leave it blank)
+- choose whether to allow remote access (if unsure, say no)
+- remove the anonymose users
+- remove the test database 
+- reload the privilege table and save changes 
+
+
+### Installing phpMyAdmin
+If using an aws-linux instance, phpMyAdmin does not come on the package manager, we can install it manually though.
+
+Install the required dependancies:   
+`sudo yum install php72-mbstring.x86_64 -y`
+
+Restart apache:   
+`sudo service httpd restart`
+
+Navigate to the apache document root:   
+`cd /var/www/html`  
+
+We can select a phpMyAdmin source and download it into the current directory using:
+`sudo wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz`   
+
+Extract the pakage using: 
+`tar -xvzf phpMyAdmin-latest-all-languages.tar.gz`   
+
+We now have the phpmyadmin directory in the html folder, abeilt with a complex name, we can change this using: 
+`sudo mv phpMyAdmin-5.0.2-all-languages phpmyadmin`  
+
+We should now have a directory called `phpmyadmin`
+
+If not already, start mysqld using: 
+`sudo service mysqld start`
+
+You should be able to go to http://my.public.dns.amazonaws.com/phpmyadmin and access the database 
+
+
+
+## Issues ive run into 
+### PHP version not correct 
+Amazon will usually install php version 5 isntead of 7, this can be fixed by running the below commands in sequence: 
+```
+sudo service httpd stop
+sudo yum remove php*
+sudo yum remove httpd*
+sudo yum clean all
+sudo yum upgrade -y
+sudo yum install php73
+```
+Installing php73 will also install httpd with the correct version
+(remember to start httpd (apache) again)
+
+### mysqqi extension is missing when going to /phpmyadmin
+First restart apache to check that all the scritps installed are running:   
+`sudo /etc/init.d/httpd restart`  
+
+Otherwise this is due to the package `php73-mysqlnd` missing, you can install it for php7 using:   
+`sudo yum install php73-mysqlnd`   
