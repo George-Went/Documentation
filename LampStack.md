@@ -704,6 +704,16 @@ You should be able to go to http://my.public.dns.amazonaws.com/phpmyadmin and ac
 
 
 
+
+
+
+
+
+
+
+
+
+
 ## Issues ive run into 
 ### PHP version not correct 
 Amazon will usually install php version 5 isntead of 7, this can be fixed by running the below commands in sequence: 
@@ -724,3 +734,4 @@ First restart apache to check that all the scritps installed are running:
 
 Otherwise this is due to the package `php73-mysqlnd` missing, you can install it for php7 using:   
 `sudo yum install php73-mysqlnd`   
+
