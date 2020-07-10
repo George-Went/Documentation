@@ -97,3 +97,13 @@ Enter mysql via a terminal using: `mysql -u root -p`
 Show Databases: `show databases;`
 Select database: `use database;`
 
+
+
+
+
+
+
+
+
+
+ tail /var/log/apache2/error.log -F 

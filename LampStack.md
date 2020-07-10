@@ -493,6 +493,64 @@ integer 2097152,
 This is due to the version of phpmyadmin being outdated on ubuntus apt-get / centos yum repositories - you end up installing a depreciated (outdated) version. 
 
 
+#### Upgrading phpmyadmin to the latest version 
+```
+ 1997  cd Documents/Programming/Projects/PHP
+ 1998  ls
+ 1999  code PHP_Diss/
+ 2000  clea
+ 2001  clear
+ 2002  ls
+ 2003  top
+ 2004  clear
+ 2005  cd
+ 2006  sudo zip -r ~/Documents/phpmyadmin.zip P/dissertation$ ls
+ 2007  sudo zip -r ~/Documents/phpmyadmin.zip /usr/share/phpmyadmin
+ 2008  ls
+ 2009  cd Documents/
+ 2010  ls
+ 2011  cd /usr/share/
+ 2012  ls
+ 2013  clear
+ 2014  ls
+ 2015  rm -rf phpmyadmin
+ 2016  clear
+ 2017  ls
+ 2018  sudo rm -rf phpmyadmin
+ 2019  ls
+ 2020  cd
+ 2021  clear
+ 2022  ls Downloads/
+ 2023  sudo unzip ~/Downloads/phpMyAdmin-5.0.2-all-languages.zip /usr/share/phpmyadmin
+ 2024  sudo mkdir /usr/share/phpmyadmin
+ 2025  sudo unzip ~/Downloads/phpMyAdmin-5.0.2-all-languages.zip /usr/share/phpmyadmin
+ 2026  cd /usr/share
+ 2027  ls
+ 2028  ls phpmyadmin/
+ 2029  ls
+ 2030  ls phpmyadmin/
+ 2031  sudo unzip ~/Downloads/phpMyAdmin-5.0.2-all-languages.zip -d usr/share/phpmyadmin
+ 2032  sudo unzip ~/Downloads/phpMyAdmin-5.0.2-all-languages.zip -d /usr/share/phpmyadmin
+ 2033  ls phpmyadmin/
+ 2034  cd phpmyadmin/
+ 2035  ls
+ 2036  clear
+ 2037  ls
+ 2038  sudo mv phpMyAdmin-5.0.2-all-languages/ /usr/share
+ 2039  ls
+ 2040  cd ..
+ 2041  ls
+ 2042  sudo rm -rf phpmyadmin
+ 2043  ls
+ 2044  sudo mv phpMyAdmin-5.0.2-all-languages/ phpmyadmin
+ 2045  ls
+ 2046  ls phpmyadmin/
+ 2047  cd 
+ 2048  sudo systemctl restart apache2
+ 2049  history
+
+```
+
 
 
 
