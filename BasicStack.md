@@ -5,12 +5,10 @@
 # SQL 
 ## Basic SQL commands 
 Entering mySQL via a terminal: `mysql -u root -p`
-This will propmt you with a password, if entering with root 
+This will prompt you with a password, if entering with root 
 
 Showing all Databases: `show databases;` 
 Access Database: mysql -u 
-Showing all tables 
-
 
 ### Databases 
 Show all databases:  
