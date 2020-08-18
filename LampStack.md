@@ -74,7 +74,7 @@ To suspend a machine (save current state and stop it):
 
 
 
-## Setting up LAMP Stack
+# Setting up LAMP Stack
 L - linux
 A - apache
 M - mySQL
