@@ -312,7 +312,16 @@ Example php myadmin explorer setup:
 
 ### A Note on bootstrap
 Bootsrtrap is a framwork that you can link to with its CSS and JS functions allowing for the quick development and deployment of front end UI elements for websites.
+You can link using `href` functions to either the css or js using: 
+```html
+<!-- CSS only -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+```
 
 
 
@@ -444,18 +453,7 @@ We can use the navigation page to access other pages:
    <meta charset="utf-8"> <!-- defienes character types  -->
    <title>Title</title> <!-- Specifices a title for a document-->
    <link rel="stylesheet" href="index.css"> <!-- link to the css stylesheet-->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-
-<div class="topnav" id="myTopnav">
-   <a href="/public/index.html">Home</a>
-   <a href="/public/js_examples.html">JS Examples</a>
-   <a href="/phpExamples/php_examples.php">PHP Examples</a>
-   <a href="/CRUD/index.php" class="active">CRUD</a>
-   <a href="javascript:void(0);" class="icon" onclick="navbarFunction()">
-      <i class="fa fa-bars"></i>
-   </a>
-</div>
 
 <body>
    <div class="content">
@@ -468,28 +466,87 @@ We can use the navigation page to access other pages:
       <li><a href="read.php"><strong>Read</strong></a> - find a user</li>
       <li><a href="update.php"><strong>Update</strong></a> - edit a user</li>
 
-   
-
       <h2>Database Scripts</h2>
-
       <li><a href="scripts/createDB.php"><strong>Create Database</strong></a> - create a database</li>
       <li><a href="scripts/createTable.php"><strong>Create Table</strong></a> - create a table</li>
-
-
-
-      
-
    </div>
 </body>
 
 </html>
 ```
 
+#### Creating a entry
+We can use this page to insert new data into the database - this page includes a referance to input.php - a php script in a seperate file. 
+
+insert.html
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+	<form method="post" action="scripts/insert.php">
+		First name:<br>
+		<input type="text" name="first_name">
+		<br>
+		Last name:<br>
+		<input type="text" name="last_name">
+		<br>
+		City name:<br>
+		<input type="text" name="city_name">
+		<br>
+		Email:<br>
+		<input type="email" name="email">
+		<br><br>
+		<input type="submit" name="save" value="submit">
+	</form>
+  </body>
+</html>
+```
+
+script.php
+```php
+<?php
+
+// connections to php code 
+$servername='localhost';
+$username='root';
+$password='password';
+$dbname = "crud";
+$conn=mysqli_connect($servername,$username,$password,"$dbname");
+if(!$conn){
+   die('Could not Connect My Sql:' .mysql_error());
+}
+
+//include_once 'config.php'; // connect to database
+//require_once 'config.php'; // 
+
+if(isset($_POST['save']))  // if the submit value 'save' is selected
+{	 
+   // select the variable from the form to post
+   $first_name = $_POST['first_name']; // _POST is a superglobal array that contains avalible data 
+   $last_name = $_POST['last_name'];
+   $city_name = $_POST['city_name'];
+   $email = $_POST['email'];
+
+   echo $first_name . "<br>", $last_name . "<br>", $city_name . "<br>", $email . "<br>"; // (checking data for debug )
+
+   // sql code to insert the form data
+   $sql = "INSERT INTO Contacts (first_name, last_name, city_name, email) 
+           VALUES ('$first_name','$last_name','$city_name','$email')";        // sql code to insert user data 
 
 
 
+   // if (mysql (connects, run above sql code))
+   if (mysqli_query($conn, $sql)) {
+   echo "New record created successfully !";
+   } 
+   else {
+      echo "Error: " . $sql . " " . mysqli_error($conn);
+   }
 
+   // Close connection
+   mysqli_close($conn);
+}
+?>
+```
 
-
-
-
+### Reading Entries
