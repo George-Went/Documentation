@@ -279,9 +279,9 @@ if(isset($_POST['submit'])) {
 ?>
 ```
 
-## Databases, SQL and PHP
+# Databases, SQL and PHP
 
-### Installation of PHP and phpmyadmin
+## Installation of PHP and phpmyadmin
 
 `link to LAMP stack documentation` 
 
@@ -289,9 +289,9 @@ if(isset($_POST['submit'])) {
 
 
 
-### Setting up databases using SQL
+## Setting up databases using SQL
 
-### Setting up databases using phpmyadmin
+## Setting up databases using phpmyadmin
 Once phpmyadmin is set up, we can log in using the root account to see the existing databases within the mysql <contatiner/instance/server>? 
 
 On the left hand side of the home page you can see a list of databases in the server, the layout is similar to a file browser, with the tables and colums set up like a collapsable directory. 
@@ -310,6 +310,24 @@ Example php myadmin explorer setup:
                | Address (varchar)
 ```
 
+## Setting up tables using phpmyadmin
+We can set up tables in phpmyadmin by using the create table function - this should bring you to a interface that allows you to set the table name and column names. 
+There are a variety of options for the table:  
+**Name** - The name of the column  
+**Type** - The type of data type (int/varchar etc)   
+**Length/values** - The length of the data allowed in the database - if not set, will usually default to 256  
+**Defaut** - The deafult value of the data (usefull if you dont want null values)  
+**Collation** - The type of char set used by the data (usually set to `utf8mb4_general_ci`)  
+**Attributes** - whether to set the data to a binary type or a timestamp     
+**Null** - whether the data will allow null values (tick for yes)  
+**A_I** - Auto Increment - the number will go up by one for each value, if checked you will not need to enter data in this column
+**In_dex** - whether the column is a primary / foreign key  
+
+
+
+
+
+
 ### A Note on bootstrap
 Bootsrtrap is a framwork that you can link to with its CSS and JS functions allowing for the quick development and deployment of front end UI elements for websites.
 You can link using `href` functions to either the css or js using: 
@@ -322,6 +340,484 @@ You can link using `href` functions to either the css or js using:
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 ```
+
+## Setting up the frontend 
+
+## Connecting to a database 
+We can connect to an existing database using an inbuit api called `mysqli` 
+
+
+
+
+Example connection script that can be imported/required into existing php scripts: 
+```php
+$servername='localhost';
+$username='root';
+$password='password';
+$dbname = "crud";
+$conn=mysqli_connect($servername,$username,$password,"$dbname");
+if(!$conn){
+   die('Could not Connect My Sql:' .mysql_error());
+}
+```
+Alternate script to connect to database: 
+```php
+<?php
+$connection = mysqli_connect('localhost','root','password','loginapp'); // parameters (ip/adress , username, password, database name)
+   if($connection) {
+      echo "We are connected <br>";
+   }
+   else{
+      die("Database connection failed");
+}
+?>
+```
+
+## Creating data within php
+We can create data by using the inbuilt `mysqli` functions to allow us to access and edit the database using SQL code which can be built and then sent to the database.
+From the moment a user presses enter, a series of event occurs: 
+ 1. The data entered into the form is put into the `_POST` superglobal array 
+ 2. The `_POST` array is sent to the server 
+ 3. The username and password values are parsed out and assigned to induvidual varaibles
+ 4. The values are inserted into a SQL script 
+ 5. The sql script is passed to the mysql engine to run, inserting the data into the database. 
+
+
+
+```php
+<!-- php -->
+<?php 
+   if(isset($_POST['submit'])) {
+      echo "yes";
+      $_POST['submit'];
+
+      $username = $_POST['username'];
+      $password = $_POST['password'];
+
+         // report back data (igonre security concernes for the moment)
+         if($username && $password) {
+            echo Hello . $username;
+            echo "Your password is" . $password;
+         }
+         else{
+            echo "Username or password is not set";
+         }
+
+      $connection = mysqli_connect('localhost','root','password','loginapp'); // parameters (ip/adress , username, password, database name)
+            if($connection) {
+               echo "We are connected <br>";
+            }
+            else{
+               die("Database connection failed");
+            }
+
+            $query = "INSERT INTO users(username,password) ";
+            $query .= "VALUES ('$username', '$password')"; // .= concatonates (adds on the end) onto existing values (same as += in js)
+
+
+            $result = mysqli_query($connection, $query);// sends sql query to database 
+
+            if(!$result){
+               die("query failed" . mysqli_error());
+            }
+   }
+?>
+```
+
+html
+```html
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="col-sm-3">
+         <form action="login_create.php" method="post">
+            <div class="form-group">
+               <label for="username">Username</label>
+               <input type="text" name="username" class="form-control">
+            </div>      
+            <div class="form-group">
+               <label for="password">Password</label>
+               <input type="text" name="password" class="form-control">
+            </div>     
+            <input class="btn btn-primary"type="submit" name="submit" value="submit">
+         </form>
+      </div>
+
+   </body>
+</html>
+```
+
+## Reading Data with php 
+We can read data from the database by using the same method as writing data - crafting and sending a SQL script to the server 
+
+php
+```php
+<!-- php -->
+<?php 
+
+   $connection = mysqli_connect('localhost','root','password','loginapp'); // parameters (ip/adress , username, password, database name)
+         if($connection) {
+            echo "We are connected <br>";
+         }
+         else{
+            die("Database connection failed");
+         }
+
+         $query = "SELECT * FROM users";
+         
+
+
+         $result = mysqli_query($connection, $query);// sends sql query to database 
+
+         if(!$result){
+            die("query failed" . mysqli_error());
+         }
+
+?>
+```
+
+html
+```html
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="col-sm-3">
+         
+         <pre> <!--  preformatted text -->
+         <?php
+            while($row = mysqli_fetch_row($result)){
+               print_r($row);
+            }
+         ?>
+         </pre>
+
+         <pre>
+         <?php
+            while($row = mysqli_fetch_assoc($result)){  // associative array
+               print_r($row);
+            }
+         ?>
+         </pre>
+      
+      </div>
+   </body>
+</html>
+```
+
+>**Note: Mysqli Functions**   
+From: https://stackoverflow.com/questions/11480129/mysql-fetch-row-vs-mysql-fetch-assoc-vs-mysql-fetch-array  
+All of the mentioned functions will return an array, the differences between them is what values that are being used as keys in the returned object.  
+   ```mysql_fetch_row```: This function will return a row where the values will come in the order as they are defined in the SQL query, and the keys will span from 0 to one less than the number of columns selected.  
+   ```mysql_fetch_assoc```: This function will return a row as an associative array where the column names will be the keys storing corresponding value.  
+   ```mysql_fetch_array```: This function will actually return an array with both the contents of mysql_fetch_rowand mysql_fetch_assoc merged into one. It will both have numeric and string keys which will let you access your data in whatever way you'd find easiest.  
+   
+   It is recommended to use either _assoc or _row though.
+
+
+## Updating Data 
+We can update data by utilsing functions from both the creating and reading data - in the below example, we can select the id of the dataset to read the data based on the id. 
+
+```php
+include "db.php";
+   $query = "SELECT * FROM users";
+
+   $result = mysqli_query($connection, $query);// sends sql query to database 
+
+   if(!$result){
+      die("query failed" . mysqli_error($connection));
+   }
+```
+```html
+<?php 
+include "db.php";
+include "functions.php";
+
+if(isset($_POST['submit'])) {
+   $username = $_POST['username'];
+   $password = $_POST['password'];
+   $id = $_POST['id'];
+
+   // building sql query 
+   $query = "UPDATE users SET ";
+   $query .= "username = '$username',";
+   $query .= "password = '$password',";
+   $query .= "WHERE id = '$id";
+
+   echo $query;
+
+   $result = mysqli_query($connection, $query);
+   if(!$result) {
+      die("Query failed" . mysqli_error($connection));
+   }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="col-sm-3">
+         <form action="" method="post">
+            <div class="form-group">
+               <label for="username">Username</label>
+               <input type="text" name="username" class="form-control">
+            </div>      
+            <div class="form-group">
+               <label for="password">Password</label>
+               <input type="text" name="password" class="form-control">
+            </div>   
+            <div class="form-group">
+            <select name="" id="">
+               <?php
+                  showAllData();
+               ?>
+            </select>
+            </div>
+
+            <input class="btn btn-primary"type="submit" name="submit" value="update">
+         </form>
+      </div>
+
+   </body>
+</html>
+```
+
+
+## Deleting Data
+We modify the update rows functionality to just remove the row from the database, this code has already been refactored, so the delete row function is already inside `functions.php`  
+
+functions.php
+```php
+function deleteRows() {
+   global $connection; // alllows $connection to be used across db.php and functions.php
+
+   $username = $_POST['username'];
+   $password = $_POST['password'];
+   $id = $_POST['id'];
+
+   // building sql query 
+   $query = "DELETE FROM users  ";
+   $query .= "WHERE id = '$id' ";
+
+   echo $query;
+
+   $result = mysqli_query($connection, $query);
+   if(!$result) {
+      die("Query failed" . mysqli_error($connection));
+   }
+}
+```
+
+login_delete.php
+```html
+<?php 
+include "db.php";
+include "functions.php";
+
+if(isset($_POST['submit'])) {
+   deleteRows();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="col-sm-3">
+         <form action="" method="post">
+            <div class="form-group">
+               <label for="username">Username</label>
+               <input type="text" name="username" class="form-control">
+            </div>      
+            <div class="form-group">
+               <label for="password">Password</label>
+               <input type="text" name="password" class="form-control">
+            </div>   
+            <div class="form-group">
+            <select name="id" id="">
+
+               <?php
+                  showAllData();
+               ?>
+
+               
+            </select>
+            </div>
+
+
+
+            <input class="btn btn-primary"type="submit" name="submit" value="update">
+         </form>
+      </div>
+
+   </body>
+</html>
+
+```
+
+
+
+
+
+## Notes on refactoring code from a single file into seperate functions
+With our current code, we have only been programming in a single file, while this is good for starting projects, this can very quickly spiral out of control.  
+
+### Refactoring php code
+With our login_update.php form, we can move the code that selects all the users into its own function.
+
+```php
+<?php
+include "db.php";
+
+
+function showAllData() {
+// takes data from a database and displays certian rows based on the 'id' selected
+   global $connection; // alllows $connection to be used across db.php and functions.php
+   $query = "SELECT * FROM users";
+
+   $result = mysqli_query($connection, $query);// sends sql query to database 
+
+   if(!$result){
+      die("query failed" . mysqli_error());
+   }
+
+   while($row = mysqli_fetch_assoc($result)){   // $row = fetch assosiative array of $result = query of 'SELECT * FROM users"
+      $id = $row['id'];                         // fetch array of the id's in the database 
+      echo "<option value=''>$id</option>";     // option value display the id's whithin the database
+   } 
+}
+?>
+```
+
+within our `login_update` function we can now use the function:
+```html
+<?php 
+include "db.php";
+include "functions.php";
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+   </head>
+   <body>
+      <div class="col-sm-3">
+         <form action="login_create.php" method="post">
+            <div class="form-group">
+               <label for="username">Username</label>
+               <input type="text" name="username" class="form-control">
+            </div>      
+            <div class="form-group">
+               <label for="password">Password</label>
+               <input type="text" name="password" class="form-control">
+            </div>   
+            <div class="form-group">
+            <select name="" id="">
+               <?php
+                  showAllData(); // uses the function from functions.php
+               ?>
+            </select>
+            </div>
+
+
+
+            <input class="btn btn-primary"type="submit" name="submit" value="update">
+         </form>
+      </div>
+
+   </body>
+</html>
+```
+
+### Refactoring HTML code
+We can also refactor html code using the same php `include` statements, the below code includes a file that contains a header for some php code.
+
+login_create.php
+```php
+include "includes/header.php";
+```
+
+includes/header.php
+```html
+<head>
+   <meta charset="UTF-8">
+   <Title>Create</Title>
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+```
+
+
+
+## PHP Security
+### SQL injection 
+SQL injection is when someone enters code into an unprotected form by exiting the 'string' within the form. a good example of this is the heartbleed bug.
+
+php has the function `mysqli_read_escape_string` which is a container that ecapsulates the form data. 
+
+In the function `createRows()` it looks like this: 
+
+without injectioon protection
+```php
+$username = $_POST['username'];
+$password = $_POST['password'];
+```
+
+with injection protection
+```php
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+$username = mysqli_real_escape_string($connection, $username);
+$username = mysqli_real_escape_string($connection, $password);
+```
+
+### Password Encryption 
+There are different types of encyption that are used, and most are change on a regular basis as new encyption methods are cracked or discovered.
+
+Hashing and Salting
+
+
+In our funcitons, we can add the encyption features to `createRows` to encypt the password that users give. 
+
+```php
+   $username = $_POST['username'];
+   $password = $_POST['password'];
+
+   $username = mysqli_real_escape_string($connection, $username);
+   $username = mysqli_real_escape_string($connection, $password);
+
+   $hashFormat = "$2y$10$";
+   $salt = "iusesomecrazystrings";
+
+   $hash_and_salt = $hashFormat . $salt;
+   
+   $password = crypt($password, $hash_and_salt);
+```
+
+
+
+
 
 
 
