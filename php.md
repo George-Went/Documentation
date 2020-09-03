@@ -816,6 +816,165 @@ In our funcitons, we can add the encyption features to `createRows` to encypt th
 ```
 
 
+## PHP and the Web
+
+### GET superglobal 
+`$_GET` is a superglobal varaible - it is avalible anywhere within a program. 
+
+The GET method sends the encoded user information appended to the page request. The page and the encoded information are separated by the `?` character.
+
+Example URL showing a search funtion within www.bbc.co.uk, you can see the search terms after the `?` within the url
+```
+https://www.bbc.co.uk/search?q=sport
+```
+
+- The GET method produces a long string that appears in your server logs, in the browser's Location: box.
+- The GET method is restricted to send upto 1024 characters only.
+- Never use GET method if you have password or other sensitive information to be sent to the server.
+- GET can't be used to send binary data, like images or word documents, to the server.
+- The data sent by GET method can be accessed using QUERY_STRING environment variable.
+- The PHP provides $_GET associative array to access all the sent information using GET method.
+
+We can also see this by writing a simple script `get.php`
+```php
+<?php 
+   print_r($_GET) // print_r prints insides of array
+?>
+```
+when we go to `get.php` we can see that it prints out an array 
+when we go to `get.php?id=10` we can now see that the array has `id=10` inside of it.
+
+To utilise `$_GET` we can use two methods: 
+- Have a user write in the query string 
+- send a link with query infomation in the string.
+
+In almost all cases the latter is chosen, with a specific url being crafted to send the user to a custom page with the `$_GET` infomation avalible.
+
+With the below example, we can make a link that sends a user to `get.php` with an id varaible se to 20 withinside the array.  
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+   </head>
+   <body>
+      <a href="get.php?id=20">get</a>
+
+   </body>
+</html>
+```
+
+
+### POST
+The POST method transfers information via HTTP headers (`<head>` parts in HTML). The information is encoded as described in case of GET method and put into a header called QUERY_STRING.
+
+- The POST method does not have any restriction on data size to be sent.
+- The POST method can be used to send ASCII as well as binary data.
+- The data sent by POST method goes through HTTP header so security depends on HTTP protocol. By using Secure HTTP you can make sure that your information is secure.
+- The PHP provides $_POST associative array (post data is sent using an assosiative array)to access all the sent information using POST method.
+
+With the below example, we can make a link that sends a user to `post.php` that shows how the function works.  
+
+```html
+<!-- php -->
+<?php 
+   echo $_POST['name']; // This code runs before the page html loads.
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+   </head>
+   <body>
+   <form action="post.php" method="post">
+      <input name="name" type="text" placeholder="Example Form textbox">
+      <br>  
+      <input type="submit" name="submit">
+   </form>
+   </body>
+</html>
+
+```
+
+The $_POST is what is known as a `superglobal`. This means that the variable is avalible in all scopes without the need to define the variable as a global.
+
+When the form is submitted with data, the `$_POST` array now has a `name` variable value, which is then printed on the *reloaded* page as the form link is recursive.  
+
+Using inspect element, we can see the http headers used 
+
+
+## TDLR 
+Both `GET` and `POST` are superglobals.  
+Both use assosative arrays to send infomation.
+`GET` sends infomation via the url. 
+`POST` sends infomation via http headers.
+
+
+## Cookies 
+Cookies are a request for a browser to store a small file that can be used for storing and retreiving variables. 
+
+### Setting cookies with php  
+An example of a set cookie can be seen below in `cookie.php`:   
+```php
+   $name = "Homer";
+   $value = 100;
+   $experation = time() + (60 * 60 * 24 * 7 * 52) ; 
+   // (unix time) + (use time functions to set cookie to expire in week)
+
+   setcookie($name,$value,$experation);
+```
+when the user accesses the page, the cookie will be added to the users computer
+
+### Reading cookies with php
+An example of reading a cookie can be seen in `cookie.php`, note the if statment, a browser will continue looking for a cookie unless you tell it to stop.
+
+```php
+   // we know that the cookie is a assosative array, so we can find certian values 
+   if(isset($_COOKIE["CookieExample"])) {
+      $cookieExample = $_COOKIE["CookieExample"]; // pass the cookie data into a variable
+      echo $cookieExample;
+   } else {
+      $cookieExample = "";
+      echo "no cookie found";
+   }
+``` 
+
+`cookie.php`
+```html
+<?php 
+   $name = "CookieExample";
+   $value = 100;
+   $experation = time() + (60 * 60 * 24 * 7 * 52) ; //unix time + use time functions to set cookie to expire in week
+
+   setcookie($name,$value,$experation);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Document</title>
+   </head>
+   <body>
+      <?php
+         // we know that the cookie is a assosative array, so we can find certian values 
+         if(isset($_COOKIE["CookieExample"])) {
+            $cookieExample = $_COOKIE["CookieExample"]; // pass the cookie data into a variable
+            echo $cookieExample;
+         } else {
+            $cookieExample = "";
+            echo "no cookie found";
+         }
+      ?>
+   </body>
+</html>
+```
+
+### Sessions 
 
 
 
