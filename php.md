@@ -1,22 +1,3 @@
-Headers 
-
-# This is an h1 tag 
-# hello 
-## This is an h2 tag 
-###### This is an h6 
-
-# Emphasis
-
-Emphasis, aka italics, with *asterisks* or _underscores_.
-
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
-Combined emphasis with **asterisks and _underscores_**.
-
-Strikethrough uses two tildes. ~~Scratch this.~~
-
-
-
 
 # PHP 
 Post Hypertext Protocol (made up)
@@ -952,6 +933,10 @@ An example of reading a cookie can be seen in `cookie.php`, note the if statment
 
    setcookie($name,$value,$experation);
 ?>
+```
+We can see the cookie by using:  
+**Firefox:** inspect element > network > cookies  
+**Google:** inspect > application > session storage
 
 <!DOCTYPE html>
 <html lang="en">
@@ -975,6 +960,266 @@ An example of reading a cookie can be seen in `cookie.php`, note the if statment
 ```
 
 ### Sessions 
+Session are server-side cookies
+Sessions allow users infomation to be saved server side, witout needing the infomation to be passed via a url or a header. This is a great way for a server to remember who is looged in, whats in a shopping cart etc, without needing to spend resources on maintaining a database of current events. 
+
+Session data is stored in an assosative array. 
+
+As sessions take data from 1 page and display it on another, 2 files are needed for an example use: 
+
+In the first file, we can set the value of a session varaible: 
+session1.php:  
+```php
+   session_start(); // This is needed to tell php that you intend to use sessions 
+   $_SESSION['greeting'] = "Hello"; // set greeting varaible to be 'hello'
+```
+
+In the second file, we can retrive this data: 
+session2.php
+```php
+   session_start(); // This is needed to tell php that you intend to use sessions 
+   echo $_SESSION['greeting']; // return the value of the 'greeting' variable
+```
+
+
+## Object Oriented programming in php
+
+Class: A blueprint / Definition / Description of something in a program
+Classes define both the properties of an object (varaibles, arrays, data) and the methods used (functions / behaviors)
+
+### Defining classes in php
+We can define a class by using: 
+```php
+class Car {} // note that the class name has to be in all caps
+```
+
+### Class methods 
+A method is a function, but just inside a class
+```php
+class Car {
+
+   function moveWheels() {
+      echo "Wheels move";
+   }
+}
+```
+We can discover if a class or method exists by using:  
+```php
+if(class_exists("Car")) {
+   echo "Class exists";
+} else {
+   echo "class does not exist";
+}
+
+if(method_exists("Car", "moveWheels")) {
+   echo "Method exists";
+} else {
+   echo "Method does not exist";
+}
+```
+
+### Instansiating Classes 
+We can create a new instance of the class by using:
+Remeber that creating classes does not generate an instance of a class in the program. 
+```php
+class Car {
+
+   function moveWheels() {
+      echo "Wheels move";
+   }
+}
+
+// Instansiate class
+$ford = new Car();
+```
+
+### Properties, Varaibles and Functions.
+A class / object can have multiple properties / varaibles assigned to it
+A function is a set of instructions within the class that can be executed by first calling the class.  
+```php
+class Car {
+
+   // Properties 
+   var $wheels = 4;
+   var $hood = 1;
+   var $engine = 1;
+   var $doors = 4;
+
+   // methods (also called functions)
+   function moveWheels() {
+      echo "Wheels move";
+
+      // We can use 'this' to refer to the Car class while 'inside' the Car class
+      $this->wheels = 10;
+   }
+}
+// Instansiate new class
+$bmw = new Car();
+$truck = new Car();
+
+// Changing a varaible
+$bmw->wheels = 18;
+
+// Displaying a varaible
+echo $bmw->wheels . "<br>";
+echo $truck->wheel = 10;
+```
+
+### Constructors 
+Constructors are functions that are run when a class instance is first created, they can be used to check and test sub classes or class properties.
+
+```php
+class Car {
+
+   // Properties 
+   var $wheels = 4;
+   var $hood = 1;
+   var $engine = 1;
+   var $doors = 4;
+
+   // this constructor executes every time a new instance of the class is created
+   function __construct(){
+      echo $this->wheels = 10;
+   }
+}
+// Instansiate new class
+$bmw = new Car();
+$truck = new Car();
+```
+
+### Inheritence 
+classes can take on properties (and property values) form other classes. This allow sub-classes  to exist, and allows complex objects that can be built out of multiple other objects.
+```php
+class Car {
+
+   // Properties 
+   var $wheels = 4;
+   var $hood = 1;
+   var $engine = 1;
+   var $doors = 4;
+
+   // methods (also called functions)
+   function moveWheels() {
+      echo "Wheels move";
+
+      // We can use 'this' to refer to the Car class while 'inside' the Car class
+      $this->wheels = 10;
+   }
+}
+
+// We can inherite properties from the car class
+Class Plane extends Car {
+   var $engine = 2; // Planes have 2 engines instead of 1
+}
+
+// Instansiate new class
+$bmw = new Car();
+$truck = new Car();
+
+$jet = new Plane();
+
+// the plane instance 'jet' inherates the wheels value from the car class;
+echo $jet->wheel . "<br>";
+echo $jet->engine;
+```
+
+### Class Access 
+Classes can have properties that can have different levels of permissions:
+**public:** can be modified by the entire program.
+**protected:** can be modified by the class or `extended` classes
+**private:** can only be modified within the class
+
+```php
+class Car {
+
+   // Properties 
+   public $wheels = 4;  // avalible to the whole program
+   protected $hood = 1; // only avalible to the class or any subclasses
+   private $engine = 1; // only avalible to this class
+   var $doors = 4;
+
+   // methods (also called functions)
+   function moveWheels() {
+      echo "Wheels move";
+
+      // We can use 'this' to refer to the Car class while 'inside' the Car class
+      $this->wheels = 10;
+   }
+
+   function showPropety(){
+      echo $this->hood;
+   }
+}
+// Instansiate new class
+$bmw = new Car();
+echo $bmw->wheels;
+
+// Depending on the property, varaibles can (or cant) be used by extended classes 
+class Semi extends Car {
+   function showPropety(){
+      echo $this->hood;
+   }
+}
+```
+
+### Static Properties
+Properties that are within a class that are called static cannot be changed by instaces of the class - only the class itself. This makes them useful when you want to make sure that certian properties cannot be changed by instaces of the class.  
+```php
+class Car {
+
+   // Properties 
+   static $wheels = 4; // The variable is attached to the class - not instaces of the class
+   var $hood = 1;
+  
+
+   // methods (also called functions)
+   function moveWheels() {
+      echo "Wheels move";
+
+      // We can use 'this' to refer to the Car class while 'inside' the Car class
+      Car::$wheels = 10;
+   }
+}
+// Instansiate new class
+$bmw = new Car();
+echo $bmw->hood;
+
+echo Car::$wheel // to call any static data or functions, we need to use ::
+```
+
+## Files 
+
+
+# Setting up a CMS
+
+
+### A note on php error tracking
+It is advised to set the php server to display errors. This can be achived by first checking the `phpinfo.php` page. If it is not avalible you can create it with the following file:   
+phpinfo.php  
+```php
+<?php
+   phpinfo();
+?>
+```
+
+After visting this page, search for `display_errors`, it should say `On`. If not, you need to find the `php.ini` file for your version of php. By defualt its located at `/etc/php/<version>/apache2/php.ini`. Use the editor of your choice to change `display_errors = Off` to `display_errors = On`.
+
+Make sure to restart apache using `systemctl restart apache2.service`
+
+### A note on output buffering
+Output buffering is (from https://stackoverflow.com/questions/2832010/what-is-output-buffering)
+
+Without output buffering (the default), your HTML is sent to the browser in pieces as PHP processes through your script. With output buffering, your HTML is stored in a variable and sent to the browser as one piece at the end of your script.
+
+Advantages of output buffering for Web developers:
+
+- Turning on output buffering alone decreases the amount of time it takes to download and render our HTML because it's not being sent to the browser in pieces as PHP processes the HTML.
+- All the fancy stuff we can do with PHP strings, we can now do with our whole HTML page as one variable.
+- If you've ever encountered the message "Warning: Cannot modify header information - headers already sent by (output)" while setting cookies, you'll be happy to know that output buffering is your answer.
+
+We can change the output_buffer in the `php.ini` file from `off` to `4096`
+
+Make sure to restart apache using `systemctl restart apache2.service`
 
 
 
@@ -984,15 +1229,9 @@ An example of reading a cookie can be seen in `cookie.php`, note the if statment
 
 
 
+# Setting up a PHP + MySQL CRUD
 
 
-
-
-
-
-
-
-## Setting up a PHP + MySQL CRUD
 
 
 
