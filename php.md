@@ -1190,8 +1190,24 @@ echo Car::$wheel // to call any static data or functions, we need to use ::
 ## Files 
 
 
-# Setting up a CMS
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Setting up a CMS
 
 ### A note on php error tracking
 It is advised to set the php server to display errors. This can be achived by first checking the `phpinfo.php` page. If it is not avalible you can create it with the following file:   
@@ -1220,6 +1236,215 @@ Advantages of output buffering for Web developers:
 We can change the output_buffer in the `php.ini` file from `off` to `4096`
 
 Make sure to restart apache using `systemctl restart apache2.service`
+
+
+## 1. Creating Databases for the CMS 
+Most of this is from: https://www.elated.com/cms-in-an-afternoon-php-mysql/#step1
+
+
+### Via Terminal:   
+We can run the mysql client from a terminal by entering: 
+```
+mysql -u <username> -p <password>
+```
+
+Create Database
+```
+create database cms;
+```
+
+Afterwards we can exit mysql by using:  
+```
+exit
+```
+We now have the first step for the back end of the database
+
+## Create articles table
+Due to the simple nature of the database, we have only one table: `articles`.
+We can create a `schema` for the table in a file - this means we can run the file multiple times if needed.
+
+`schema`: decribes the type of data a table can hold, as well as infomation about the table itself. 
+
+article_table.sql
+```sql
+DROP TABLE IF EXISTS articles; 
+CREATE TABLE articles
+(
+  id              smallint unsigned NOT NULL auto_increment,
+  publicationDate date NOT NULL,                              # When the article was published
+  title           varchar(255) NOT NULL,                      # Full title of the article
+  summary         text NOT NULL,                              # A short summary of the article
+  content         mediumtext NOT NULL,                        # The HTML content of the article
+
+  PRIMARY KEY     (id)
+);
+```
+
+
+## Creating a config file
+While this step can be ignore or modified, one of the best ways to organize a sites codebase is by using a config file. Thia allows you to change certian variables by going into the config file, instead of having to edit the codebase itself.
+
+>**Note:** The `define` property is used to create `constants` in php - these cant be edited once set, making them a secure way to store data.
+`define("varaible_name", "value")`
+
+cofig.php
+```php
+<?php
+ini_set( "display_errors", true );
+date_default_timezone_set( "Europe/London" );  // http://www.php.net/manual/en/timezones.php
+define( "DB_DSN", "mysql:host=localhost;dbname=cms" );
+define( "DB_USERNAME", "username" ); // mysql username
+define( "DB_PASSWORD", "password" ); // mysql password
+define( "CLASS_PATH", "classes" );
+define( "TEMPLATE_PATH", "templates" );
+define( "HOMEPAGE_NUM_ARTICLES", 5 ); // number of articles on homepage
+define( "ADMIN_USERNAME", "admin" ); // admin acc username
+define( "ADMIN_PASSWORD", "mypass" ); // admin account password
+require( CLASS_PATH . "/Article.php" );
+
+
+// 
+function handleException( $exception ) {
+  echo "Sorry, a problem occurred. Please try later.";
+  error_log( $exception->getMessage() );
+}
+
+set_exception_handler( 'handleException' );
+?>
+```
+
+#### Display errors in the browser
+The `ini_set()` line causes error messages to be displayed in the browser. This is good for debugging, but it should be set to false on a live site since it can be a security risk.
+#### Set the timezone
+As our CMS will use PHP’s `date()` function, we need to tell PHP our server’s timezone (otherwise PHP generates a warning message).
+#### Set the database access details
+Next we define a constant, `DB_DSN`, that tells PHP where to find our MySQL database. Make sure the dbname parameter matches the name of your CMS database (cms in this case). We also store the MySQL username and password that are used to access the CMS database in the constants `DB_USERNAME` and `DB_PASSWORD`. Set these values to your MySQL username and password.
+#### Set the paths
+We set 2 path names in our config file: `CLASS_PATH`, which is the path to the class files, and `TEMPLATE_PATH`, which is where our script should look for the HTML template files. Both these paths are relative to our top-level cms folder.
+#### Set the number of articles to display on the homepage
+`HOMEPAGE_NUM_ARTICLES` controls the maximum number of article headlines to display on the site homepage. We’ve set this to `5` initially, but if you want more or less articles, just change this value.
+#### Set the admin username and password
+The `ADMIN_USERNAME` and `ADMIN_PASSWORD` constants contain the login details for the CMS admin user. Again, you’ll want to change these to your own values.
+#### Include the Article class
+Since the Article class file — which we’ll create next — is needed by all scripts in our application, we include it here.
+#### Create an exception handler
+Finally, we define `handleException()`, a simple function to handle any PHP exceptions that might be raised as our code runs. The function displays a generic error message, and logs the actual exception message to the web server’s error log. 
+In particular, this function improves security by handling any PDO (php data objects) exceptions that might otherwise display the database username and password in the page. Once we’ve defined `handleException()`, we set it as the exception handler by calling PHP’s `set_exception_handler()` function. 
+
+
+## Building the Article class 
+
+
+
+
+## Front End index.php
+
+## Back end admin.php
+
+## Front End Templates
+
+## Back End Templates 
+
+## Stylesheets 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Setting up a CMS (course version)
+
+## Creating the database
+creating `catagory` table structure:   
+```sql
+CREATE TABLE `cms`.`catagory` ( `cat_id` INT(3) NOT NULL AUTO_INCREMENT , `cat_title` INT NOT NULL , PRIMARY KEY (`cat_id`)) ENGINE = InnoDB; 
+```
+
+Connecting to the database with php
+We need to add a `includes` directory to our file structure, as `index.php` is open to the public, we want to make sure that our database connection code is secure in a private area only acceable by the server. 
+
+We can do this by putting it in a new secure directory called `includes`
+db.php
+```php
+   $user = 'localhost';
+
+   // Put values into the array `db`
+   $db['db_host'] = "localhost";
+   $db['db_user'] = "root";
+   $db['db_pass'] = "password";
+   $db['db_name'] = "cms";
+
+   // define consant (whats happening in the loop)
+   define("DB_HOST", 'localhost');
+
+   // loop through array and convert into constant
+   foreach($db as $key => $value) {
+      define(strtoupper($key), $value);
+   }
+
+   // mysqli_connect('server url','username','password','database')
+   $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+   if($connection) {
+      echo "we are connected";
+   }
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
