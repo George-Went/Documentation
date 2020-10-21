@@ -1,7 +1,7 @@
 
 # PHP 
 Post Hypertext Protocol (made up)
-No one really knows how it started
+No one really knows what the acronym stands for
 
 - PHP files can contain text, HTML, CSS, JavaScript, and PHP code
 - PHP code is executed on the server, and the result is returned to the browser as plain HTML
@@ -1238,6 +1238,8 @@ We can change the output_buffer in the `php.ini` file from `off` to `4096`
 Make sure to restart apache using `systemctl restart apache2.service`
 
 
+
+
 ## 1. Creating Databases for the CMS 
 Most of this is from: https://www.elated.com/cms-in-an-afternoon-php-mysql/#step1
 
@@ -1259,7 +1261,7 @@ exit
 ```
 We now have the first step for the back end of the database
 
-## Create articles table
+## 2. Create articles table
 Due to the simple nature of the database, we have only one table: `articles`.
 We can create a `schema` for the table in a file - this means we can run the file multiple times if needed.
 
@@ -1281,7 +1283,7 @@ CREATE TABLE articles
 ```
 
 
-## Creating a config file
+## 3. Creating a config file
 While this step can be ignore or modified, one of the best ways to organize a sites codebase is by using a config file. Thia allows you to change certian variables by going into the config file, instead of having to edit the codebase itself.
 
 >**Note:** The `define` property is used to create `constants` in php - these cant be edited once set, making them a secure way to store data.
@@ -1315,25 +1317,231 @@ set_exception_handler( 'handleException' );
 
 #### Display errors in the browser
 The `ini_set()` line causes error messages to be displayed in the browser. This is good for debugging, but it should be set to false on a live site since it can be a security risk.
+
 #### Set the timezone
 As our CMS will use PHP’s `date()` function, we need to tell PHP our server’s timezone (otherwise PHP generates a warning message).
+
 #### Set the database access details
 Next we define a constant, `DB_DSN`, that tells PHP where to find our MySQL database. Make sure the dbname parameter matches the name of your CMS database (cms in this case). We also store the MySQL username and password that are used to access the CMS database in the constants `DB_USERNAME` and `DB_PASSWORD`. Set these values to your MySQL username and password.
+
 #### Set the paths
 We set 2 path names in our config file: `CLASS_PATH`, which is the path to the class files, and `TEMPLATE_PATH`, which is where our script should look for the HTML template files. Both these paths are relative to our top-level cms folder.
+
 #### Set the number of articles to display on the homepage
 `HOMEPAGE_NUM_ARTICLES` controls the maximum number of article headlines to display on the site homepage. We’ve set this to `5` initially, but if you want more or less articles, just change this value.
+
 #### Set the admin username and password
 The `ADMIN_USERNAME` and `ADMIN_PASSWORD` constants contain the login details for the CMS admin user. Again, you’ll want to change these to your own values.
+
 #### Include the Article class
 Since the Article class file — which we’ll create next — is needed by all scripts in our application, we include it here.
+
 #### Create an exception handler
 Finally, we define `handleException()`, a simple function to handle any PHP exceptions that might be raised as our code runs. The function displays a generic error message, and logs the actual exception message to the web server’s error log. 
 In particular, this function improves security by handling any PDO (php data objects) exceptions that might otherwise display the database username and password in the page. Once we’ve defined `handleException()`, we set it as the exception handler by calling PHP’s `set_exception_handler()` function. 
 
 
-## Building the Article class 
 
+
+
+## Building the Article class 
+We only need one class for the `article.php` class. This handles the storing of articles on the database, as well as retreiving articles from the database. 
+
+Even though we only have one class, its good practice to keep our classes in a seperate directory incase of future development. 
+
+Article.php
+```php
+<?php
+
+/**
+ * Class to handle articles
+ */
+
+class Article
+{
+
+  // Properties
+
+  /**
+  * @var int The article ID from the database
+  */
+  public $id = null;
+
+  /**
+  * @var int When the article was published
+  */
+  public $publicationDate = null;
+
+  /**
+  * @var string Full title of the article
+  */
+  public $title = null;
+
+  /**
+  * @var string A short summary of the article
+  */
+  public $summary = null;
+
+  /**
+  * @var string The HTML content of the article
+  */
+  public $content = null;
+
+
+  /**
+  * Sets the object's properties using the values in the supplied array
+  *
+  * @param assoc The property values
+  */
+
+  public function __construct( $data=array() ) {
+    if ( isset( $data['id'] ) ) $this->id = (int) $data['id'];
+    if ( isset( $data['publicationDate'] ) ) $this->publicationDate = (int) $data['publicationDate'];
+    if ( isset( $data['title'] ) ) $this->title = preg_replace ( "/[^\.\,\-\_\'\"\@\?\!\:\$ a-zA-Z0-9()]/", "", $data['title'] );
+    if ( isset( $data['summary'] ) ) $this->summary = preg_replace ( "/[^\.\,\-\_\'\"\@\?\!\:\$ a-zA-Z0-9()]/", "", $data['summary'] );
+    if ( isset( $data['content'] ) ) $this->content = $data['content'];
+  }
+
+
+  /**
+  * Sets the object's properties using the edit form post values in the supplied array
+  *
+  * @param assoc The form post values
+  */
+
+  public function storeFormValues ( $params ) {
+
+    // Store all the parameters
+    $this->__construct( $params );
+
+    // Parse and store the publication date
+    if ( isset($params['publicationDate']) ) {
+      $publicationDate = explode ( '-', $params['publicationDate'] );
+
+      if ( count($publicationDate) == 3 ) {
+        list ( $y, $m, $d ) = $publicationDate;
+        $this->publicationDate = mktime ( 0, 0, 0, $m, $d, $y );
+      }
+    }
+  }
+
+
+  /**
+  * Returns an Article object matching the given article ID
+  *
+  * @param int The article ID
+  * @return Article|false The article object, or false if the record was not found or there was a problem
+  */
+
+  public static function getById( $id ) {
+    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+    $sql = "SELECT *, UNIX_TIMESTAMP(publicationDate) AS publicationDate FROM articles WHERE id = :id";
+    $st = $conn->prepare( $sql );
+    $st->bindValue( ":id", $id, PDO::PARAM_INT );
+    $st->execute();
+    $row = $st->fetch();
+    $conn = null;
+    if ( $row ) return new Article( $row );
+  }
+
+
+  /**
+  * Returns all (or a range of) Article objects in the DB
+  *
+  * @param int Optional The number of rows to return (default=all)
+  * @return Array|false A two-element array : results => array, a list of Article objects; totalRows => Total number of articles
+  */
+
+  public static function getList( $numRows=1000000 ) {
+    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+    $sql = "SELECT SQL_CALC_FOUND_ROWS *, UNIX_TIMESTAMP(publicationDate) AS publicationDate FROM articles
+            ORDER BY publicationDate DESC LIMIT :numRows";
+
+    $st = $conn->prepare( $sql );
+    $st->bindValue( ":numRows", $numRows, PDO::PARAM_INT );
+    $st->execute();
+    $list = array();
+
+    while ( $row = $st->fetch() ) {
+      $article = new Article( $row );
+      $list[] = $article;
+    }
+
+    // Now get the total number of articles that matched the criteria
+    $sql = "SELECT FOUND_ROWS() AS totalRows";
+    $totalRows = $conn->query( $sql )->fetch();
+    $conn = null;
+    return ( array ( "results" => $list, "totalRows" => $totalRows[0] ) );
+  }
+
+
+  /**
+  * Inserts the current Article object into the database, and sets its ID property.
+  */
+
+  public function insert() {
+
+    // Does the Article object already have an ID?
+    if ( !is_null( $this->id ) ) trigger_error ( "Article::insert(): Attempt to insert an Article object that already has its ID property set (to $this->id).", E_USER_ERROR );
+
+    // Insert the Article
+    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+    $sql = "INSERT INTO articles ( publicationDate, title, summary, content ) VALUES ( FROM_UNIXTIME(:publicationDate), :title, :summary, :content )";
+    $st = $conn->prepare ( $sql );
+    $st->bindValue( ":publicationDate", $this->publicationDate, PDO::PARAM_INT );
+    $st->bindValue( ":title", $this->title, PDO::PARAM_STR );
+    $st->bindValue( ":summary", $this->summary, PDO::PARAM_STR );
+    $st->bindValue( ":content", $this->content, PDO::PARAM_STR );
+    $st->execute();
+    $this->id = $conn->lastInsertId();
+    $conn = null;
+  }
+
+
+  /**
+  * Updates the current Article object in the database.
+  */
+
+  public function update() {
+
+    // Does the Article object have an ID?
+    if ( is_null( $this->id ) ) trigger_error ( "Article::update(): Attempt to update an Article object that does not have its ID property set.", E_USER_ERROR );
+   
+    // Update the Article
+    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+    $sql = "UPDATE articles SET publicationDate=FROM_UNIXTIME(:publicationDate), title=:title, summary=:summary, content=:content WHERE id = :id";
+    $st = $conn->prepare ( $sql );
+    $st->bindValue( ":publicationDate", $this->publicationDate, PDO::PARAM_INT );
+    $st->bindValue( ":title", $this->title, PDO::PARAM_STR );
+    $st->bindValue( ":summary", $this->summary, PDO::PARAM_STR );
+    $st->bindValue( ":content", $this->content, PDO::PARAM_STR );
+    $st->bindValue( ":id", $this->id, PDO::PARAM_INT );
+    $st->execute();
+    $conn = null;
+  }
+
+
+  /**
+  * Deletes the current Article object from the database.
+  */
+
+  public function delete() {
+
+    // Does the Article object have an ID?
+    if ( is_null( $this->id ) ) trigger_error ( "Article::delete(): Attempt to delete an Article object that does not have its ID property set.", E_USER_ERROR );
+
+    // Delete the Article
+    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+    $st = $conn->prepare ( "DELETE FROM articles WHERE id = :id LIMIT 1" );
+    $st->bindValue( ":id", $this->id, PDO::PARAM_INT );
+    $st->execute();
+    $conn = null;
+  }
+
+}
+
+?>
+```
 
 
 
@@ -1392,8 +1600,8 @@ creating `catagory` table structure:
 CREATE TABLE `cms`.`catagory` ( `cat_id` INT(3) NOT NULL AUTO_INCREMENT , `cat_title` INT NOT NULL , PRIMARY KEY (`cat_id`)) ENGINE = InnoDB; 
 ```
 
-Connecting to the database with php
-We need to add a `includes` directory to our file structure, as `index.php` is open to the public, we want to make sure that our database connection code is secure in a private area only acceable by the server. 
+## Connecting to the database with php
+We need to add a `/includes` directory to our file structure, as `index.php` is open to the public, we want to make sure that our database connection code is secure in a private area only acceable by the server. 
 
 We can do this by putting it in a new secure directory called `includes`
 db.php
@@ -1421,6 +1629,211 @@ db.php
       echo "we are connected";
    }
 ```
+
+## Cleaning up the file structure (creating headers and footers)
+As well as moving php into the `/includes` folder, we can also move html into the `/includes` folder. We can seperate out the html within `index.php` so that it is both cleaner and reusable (in the sense that you dont have to copy stuff like navbars exactly in each html page).
+
+This can be achived using the `include` function: 
+index.php
+```php
+include "footer.php"
+```
+
+footer.php: 
+```php
+<!-- Footer -->
+<footer>
+   <div class="row">
+         <div class="col-lg-12">
+            <p>Copyright &copy; Your Website 2014</p>
+         </div>
+         <!-- /.col-lg-12 -->
+   </div>
+   <!-- /.row -->
+</footer>
+```
+
+The result is that `index.php` will have the footer.php text in the final html page.
+
+
+## Inserting and displaying data in the catagories file
+We have the main page set up, now we can insert some data into the page to display it, starting with the navigation page. Here we can add some catagories directly to the database and add them to the navigation menu. 
+
+As we dont have the ability to upload new catagories yet, we can add them using 
+```sql
+INSERT INTO `catagories` (`cat_id`, `cat_title`) VALUES (NULL, 'bootstrap'), (NULL, 'javascript');
+-- we can use null due to the auto_increment of the 'cat_id' column 
+```
+
+We can then output the catagories table into the database by using the following html/php code:
+```php
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+         <?php 
+
+            include "db.php";
+            $query = "SELECT * FROM catagories";    // create sql query
+            $select_all_catagories_query = mysqli_query($connection,$query); // send query to mysql server
+
+            while($row = mysqli_fetch_assoc($select_all_catagories_query)) {
+               $cat_title = $row['cat_title'];
+
+               echo "<li><a href='#'>{$cat_title}</a></li>";
+            }
+         ?>
+
+         <!-- <li>
+            <a href="#">About</a>
+         </li>
+         <li>
+            <a href="#">Services</a>
+         </li>
+         <li>
+            <a href="#">Contact</a>
+         </li> -->
+      </ul>
+</div>
+```
+
+## Creating Posts and linking them to catagories 
+The site is deigned to host blogging stuff, so we need to add the ability to create posts on the site. As well as this, we need a way to link them to the catagory.
+
+For the table, we can add a variety of attributes for future content 
+
+```sql
+CREATE TABLE `posts`. ( 
+   `post_id` INT(3) NOT NULL AUTO_INCREMENT ,                 
+   `post_catagory_id` INT(3) NOT NULL ,
+   `post_title` VARCHAR(255) NOT NULL , 
+   `post_author` VARCHAR(255) NOT NULL , 
+   `post_date` INT NOT NULL , 
+   `post_image` TEXT NOT NULL , 
+   `post_content` TEXT NOT NULL , 
+   `post_tags` VARCHAR(255) NOT NULL , 
+   `post_comment_count` int(11) NOT NULL , 
+   `post_status` VARCHAR(255) NOT NULL ,
+   `post_view_count` INT(11) NOT NULL ,
+ PRIMARY KEY (`post_id`)) ENGINE = InnoDB;
+```
+
+We can create an example entry using mysql with the code below:
+```sql
+INSERT INTO `posts` (`post_id`, `post_catagory_id`, `post_title`, `post_author`, `post_date`, `post_image`, `post_content`, `post_tags`, `post_comment_count`, `post_status`, `post_views_count`) VALUES (NULL, '1', 'Documentation of javascript', 'George', '2020-10-16', 'doge.jpg', 'Some words on documentation', 'Documentation, javascript', '2', '', '2');
+```
+
+We now have a database table called `posts` with an example post within it.
+We now need to display the data in our table in the `index.php` page.
+
+We can use the below template for the blog posts (remeber that we are using bootstrap for the desing)
+```html
+   <!-- Blog Post -->
+   <h2>
+      <a href="#">Blog Post Title</a>
+   </h2>
+   <p class="lead">
+      by <a href="index.php">Start Bootstrap</a>
+   </p>
+   <p> Posted on August 28, 2013 at 10:00 PM</p>
+   <hr>
+      <img class="img-responsive" src="http://placehold.it/900x300" alt="">
+   <hr>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolore, veritatis, tempora, necessitatibus inventore nisi quam quia repellat ut tempore laborum possimus eum dicta id animi corrupti debitis ipsum officiis rerum.</p>
+      <a class="btn btn-primary" href="#">Read More</a>
+
+   <hr>
+```
+
+We can then add in the php code that will dynamically create the Tile,content,author,etc from the data within the database:
+
+First we need the query that can colled the data - this is run at the start of of the page so that we have the data we need later on, and dont need to contact the database multiple times for small amounts of data.
+```php
+<?php
+   $query = "SELECT * FROM posts";
+   $select_all_posts_query = mysqli_query($connection,$query); // send query to mysql server
+   
+   //this loops through each post and creates a html title tag with the posts name
+   while($row = mysqli_fetch_assoc($select_all_posts_query)) { // fetches results and puts them in a assosative array
+      $post_title = $row['post_title']; // creates a variable called 'post title with the value of the post_title query
+      $post_author = $row['post_author'];
+      $post_date = $row['post_date'];
+      $post_image = $row['post_image'];
+      $post_content = $row['post_content'];
+      
+   }
+?>
+```
+
+```html
+   <!-- First Blog Post -->
+   <h2>
+      <a href="#"><?php echo $post_title ?></a>
+   </h2>
+   <p class="lead">
+      by <a href="index.php"><?php echo $post_author ?></a>
+   </p>
+   <p> Posted on <?php echo $post_date ?></p>
+   <hr>
+      <img class="img-responsive" src="http://placehold.it/900x300" alt="">
+   <hr>
+   <p><?php echo $post_content ?></p>
+   <a class="btn btn-primary" href="#">Read More</a>
+
+   <hr>
+```
+Now, instead of having static data, the site can read from existing database data. 
+
+## Inserting Images into the site
+The database cant store images in the table itself - but it can have a referance to where the image is located. In our case the `post_image`.
+While we cant store the image in the database, we can store the file location on the server. In our case, we can create a folder called `/images`, then we can just store the file name in the database, knowing that it will link to the directory.
+
+Getting all the relivent data for the content - including the image location.
+```php
+<?php
+   $query = "SELECT * FROM posts";
+   $select_all_posts_query = mysqli_query($connection,$query); // send query to mysql server
+   
+   //this loops through each post and creates a html title tag with the posts name
+   while($row = mysqli_fetch_assoc($select_all_posts_query)) { // fetches results and puts them in a assosative array
+      $post_title = $row['post_title']; // creates a variable called 'post title with the value of the post_title query
+      $post_author = $row['post_author'];
+      $post_date = $row['post_date'];
+      $post_image = $row['post_image'];
+      $post_content = $row['post_content'];         
+   }
+?>
+```
+
+We can then just echo the image location along with the `/images` directory to get the image source.
+
+html code to display the stored image
+```php
+<img class="img-responsive" src="images/<?php echo $post_image;?>" alt="">
+```
+
+
+## Creating a custom search engine.
+A search bar is a useful thing for users to find specific content within a website.
+
+We can start off by creating a form that allows users to enter in data. 
+
+```php
+   <!-- Blog Search Well -->
+   <div class="well">
+      <h4>Blog Search</h4>
+      <form action="" method="post">
+      <div class="input-group">
+         <input type="text" class="form-control">
+         <span class="input-group-btn">
+               <button name="submit"class="btn btn-default" type="submit">
+                  <span class="glyphicon glyphicon-search"></span>
+         </button>
+         </span>
+      </div>
+      </form>
+      <!-- /.input-group -->
+   </div>
+```
+>**Note:** The `<span>` element can be used to create a sort of inline `<div>`. This allows for multiple html elements to be within the same 'line'.
 
 
 
