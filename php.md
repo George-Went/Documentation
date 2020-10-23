@@ -1817,6 +1817,7 @@ A search bar is a useful thing for users to find specific content within a websi
 We can start off by creating a form that allows users to enter in data. 
 
 ```php
+
    <!-- Blog Search Well -->
    <div class="well">
       <h4>Blog Search</h4>
@@ -1834,6 +1835,106 @@ We can start off by creating a form that allows users to enter in data.
    </div>
 ```
 >**Note:** The `<span>` element can be used to create a sort of inline `<div>`. This allows for multiple html elements to be within the same 'line'.
+
+We can check that the form works by 'catching' the data using a 
+`$_POST` php command **above** the form. when we refesh the page, the data stored in the header (beacuse its using `$_POST`) will be displayed above the form. 
+
+```php
+<?php
+echo $_POST['search'];
+?>
+```
+When we enter infomation, we can see that the search value has been stored in `$_POST`.
+
+Now that we have the search data, we can insert it into a query to send to the database. 
+```php
+if(isset($_POST['submit'])){
+   echo $_POST['search'];
+
+   $search = $_POST['search'];
+
+   $query = "SELECT * FROM posts WHERE post_tags LIKE = '%$search%'";
+}
+```
+> **Note:** The `LIKE` operator is used to search for specific patterns in a value. We can use the `%` on either side of the value to say that we want to find any `post_tags` that have the search string value in them. 
+
+> More info can be found at: https://www.w3schools.com/sql/sql_like.asp
+
+
+We can then add on the code needed to send the query to the database - and the code for error messages if it encounters a problem. We can also move our php script into its own file, and just use `include search_script.php`
+
+```php
+if(isset($_POST['submit'])){
+   echo $_POST['search'];
+
+   $search = $_POST['search'];
+
+   $query = "SELECT * FROM posts WHERE post_tags LIKE '%$search%' ";
+
+   $search_query = mysqli_query($connection, $query);
+   if(!$search_query){
+      die("Query Failed" . mysqli_error($connection));
+   }
+
+   $count = mysqli_num_rows($search_query);
+   if($count == 0){
+      echo "<h1>No Result</h1>";
+   }
+   else {
+      echo "Some Result";
+   }
+}
+```
+
+
+Now that we have a working (if basic) search function, we need to create a page that displayes the results.  
+
+To start off, we can take most of `index.php` and cut it so that only the basics of the page are shown. Then, we can insert our php code into the area where a blog would normally show up, such as the resutls. 
+
+The search function just places the blog post inside a wrapper that means that `$query` is only pulling results from the search SQL function, rather than just pulling every result from the database
+
+index.php SQL function:
+```php
+$query = "SELECT * FROM posts";
+```
+search.php SQL function:
+```php
+$query = "SELECT * FROM posts WHERE post_tags LIKE '%$search%';
+```
+
+
+(`search.php` file in github project link)
+
+
+
+
+
+## Adding catagories to the sidebar
+The catagories setup is very similar to the post content, in that we select specific data from a single table in the database and display it. 
+
+First we get our catagories from the `catagories` table using:
+```php
+$query = "SELECT * FROM catagories";
+$select_catagories_sidebar = mysqli_query($connection,$query);
+```
+
+Then, within our blog catagories, we can loop through the database and create a list (`li`) of all the catagories in our database. 
+
+```php
+//this loops through each catagory and creates a html title tag with the catagory name
+while($row = mysqli_fetch_assoc($select_catagories_sidebar)) 
+{ 
+   
+   $cat_title = $row['cat_title']; //Grabs current row title
+   echo "<li><a href = '#'>{$cat_title}</a></li>"; //Creates a list object with that row/cat_title.
+}
+```
+
+
+
+
+
+## Working on Admin Features.
 
 
 
