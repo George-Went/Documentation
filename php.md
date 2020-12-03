@@ -1556,9 +1556,13 @@ class Article
 ## Stylesheets 
 
 
+## The 
 
+### Procedual 
 
+### Object Oriented
 
+### PDO 
 
 
 
@@ -1935,7 +1939,7 @@ while($row = mysqli_fetch_assoc($select_catagories_sidebar))
 
 
 ## Working on Admin Features.
-
+The site can also have admin features that allows us to upload articles.
 
 
 
@@ -1969,11 +1973,6 @@ while($row = mysqli_fetch_assoc($select_catagories_sidebar))
 
 
 # Setting up a PHP + MySQL CRUD
-
-
-
-
-
 
 ### Requirements 
 Web server 
@@ -2183,3 +2182,207 @@ if(isset($_POST['save']))  // if the submit value 'save' is selected
 ```
 
 ### Reading Entries
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### MVC Model View Framework  
+```
+              --> Browser  --
+             |              |
+View  -->  Controller  <- Router
+             |
+           Model   <--/-->  DB
+``` 
+(Best i can do on md atm)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Travisy Media Tutorial Notes 
+
+
+## File Structure 
+```
+mvc_program/
+├── app       // This is where the MVC strucuter is made 
+│   ├── bootstrap.php  // Not twitter bootstrap 
+│   ├── controllers
+│   ├── helpers                // Small scripts such as redirect functions + sessions
+│   ├── libraries
+│   │   ├── controller.php     // Load models and views from other classes
+│   │   ├── core.php           // analysing URLS for POSTS and grabbing data
+│   │   └── database.php       // database links and scripts
+│   ├── models
+│   └── views
+└── public // Where main index.php file goes - everything routes thorugh here
+           // Static assests are routed through here    
+    ├── css
+    │   └── style.css
+    ├── img
+    ├── index.php
+    └── js
+        └── main.js
+```
+
+In app/ we can add `.htaccess` file that allows us to block clients from accesing the file directories from the website. 
+
+However, this is not needed if you have access to the main server hosting the apache configuration, as you can set the `AllowOveride` to circumnavigate the permissions.  
+http://httpd.apache.org/docs/current/howto/htaccess.html#when
+
+
+
+## Directing everything through index.php
+We can use the `.htaccess` file to allow us to modify how we can request POST data within php code - this is usually enable by defualt on third party apache builders such as xampp or wampp for self hosting testing servers, but for basic apache installs it is needed (sometimes).   
+
+>**Note:** dont worry about fully understanding the rewrite code.
+
+The main thing this file does is that any requested route that does not exist, the client will be returned to the index page. (if you've worked with node / django its like being able to set up a 404 page)
+
+mvc_program/public/.htaccess
+```
+<IfModule mod_rewrite.c>
+  Options -Multiviews                    // Remove multiviews ability
+  RewriteEngine On                      // Allow rewrite rules 
+  RewriteBase /TraversyCourse/public    // Root file to use
+  RewriteCond %{REQUEST_FILENAME} !-d   // If file is not found
+  RewriteCond %{REQUEST_FILENAME} !-f   // 
+  RewriteRule  ^(.+)$ index.php?url=$1 [QSA,L] // GOTO this rewite rule - (which is send user to index.php)
+</IfModule>
+```
+We can also add another .htaccess file in the root of the program that allows us to redirect uses from the root url to the `public/index.php page`.
+
+mvc_program/.htaccess
+```
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  RewriteRule ^$ public/ [L]
+  RewriteRule (.*) public/$1 [L]
+</IfModule>
+```
+
+## Bootstrap File and Core Classes 
+Calling functions can be done in a php file, however if your constantly using the same classes / functions, it can be easier to group them together into the same class: This is what `bootstrap.php` is for.
+
+bootstrap.php
+```php
+<!-- This is not the twitter bootstrap, this requires all the helpers / configs  -->
+<?php 
+// Load libraries
+require_once '../app/libraries/Core.php';
+require_once '../app/libraries/Controller.php';
+require_once '../app/libraries/Database.php';
+```
+
+We can then use this conbination of libraries to referance all 3 php files, but we only need to use `require bootstrap.php`.
+
+## Getting a url 
+Often in php, we need to grab data from the url, most likey queries, which are denoted by data that appears after a `?` in a url.
+
+```php
+<?php
+/* Creates URL and loads core controller 
+   URL Format 
+   Controller / method / parameters (params)
+*/
+
+
+class Core {
+   protected $currentController = 'pages';
+   protected $currentMethod = 'index';   
+   protected $params = []; // No paramaters set 
+
+   // Create a constructor - this allows for the class to be run straight away when a use lands on the page 
+   public function __construct(){
+      $this->getUrl(); // acceses getURL function from within the class
+   }
+
+   // function to get the URL of the page
+   public function getUrl(){
+      echo $_GET['url']; //global var _GET returns the url
+   }
+}
+?>
+```
+
+We can also update the public function `getUrl()` so that it can seperate out diffrent file locations: 
+
+```php
+class Core {
+   protected $currentController = 'pages';
+   protected $currentMethod = 'index';   
+   protected $params = []; // No paramaters set 
+
+   // Create a constructor - this allows for the class to be run straight away when a use lands on the page 
+   public function __construct(){
+      print_r($this->getUrl()); // acceses getURL function from within the class and print array infomation 
+   }
+
+   // function to get the URL of the page
+   public function getUrl(){
+      echo $_GET['url'];                               // global var _GET returns the url
+      if (isset($_GET['url'])){                        // if $_GET is "url"
+         $url = rtrim($_GET['url'], '/');             // strips whitespce and "/" from the url
+         $url = filter_var($url, FILTER_SANITIZE_URL); // Filters our special characters 
+         $url = explode('/', $url);                    // splits each word seperated by a "/" into a string, stored in a array 
+         return $url;               
+      }
+   }
+}
+```
+

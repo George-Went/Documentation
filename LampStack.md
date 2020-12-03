@@ -53,24 +53,74 @@ If installing pip (because pip --version == 1.0)
 phpMyAdmin login screen
 We can also use the VM as a seperate system so we can test connections as if there were two seperate computers, this is great for testing database and server connections, as well as hosting both on seperate VM's then attempting to connect to your system using you main OS - just like a normal user would in real life. 
 
-## synced folders 
-
-By default, vagrant uses 
-
 
 ## Shuting Down a Vagrant Machine
 To suspend a machine (save current state and stop it): 
 
 
 
+# Initial Server Setup 
+While setting up a lamp stack from a fresh install of a linux distrabution, there can be some issues - mainly to do with the security of the server.
+
+## Connecting to the server 
+When you first finish the installation of the linux operating system onme of the first things to do is actually access it from another computer that has a UI or a terminal interface - basically anything with a screen can do.
+
+### Secure Shell (SSH)
+Secure Shell can be used to access the server over port 22
+```
+ssh root@server_ip 
+```
+We want to log in as root so that we can get administrator privilages from a remote system.
+
+## Create a new User 
+While changing the system (specifically /var/www in our case) using root can be easy, one of the major issues with using root is that it has access to all of the operating system. 
+
+We can create a new user using:
+```
+adduser <username>
+```
+
+We can then grant the ability for the account to use `sudo` privilages by adding the user to the `sudo group`:
+```
+usermod -aG sudo <username>
+```
+This allows the user to use the `sudo` command without having to enter in the password every time he wants to change something outside of the home directory / requires admin access.
 
 
+## Setting up Firewalls
+More infomation is avalible at: https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands
+Ubuntu apps can use the ufw firewall (uncomplicated firewall)
+The firewall acts as an interface to the computers iptables to easily set access to certian applications by name or by port number. 
+For the web server, we need to make sure that `OpenSSH` is allowed by the firewall, this can also be 
 
+To start ufw:
+```
+ufw enable
+```
 
+To stop ufw: 
+```
+ufw disable
+```
 
+You can allow access through the firewall either by stating the name of the program or the port number that it uses:
+```
+ufw allow OpenSSH
+```
+or alternitivly
+```
+ufw allow 22
+```
 
+To block a program or port access to the server - once again, this can be done via port numebr as well: 
+```
+ufw deny OpenSSH 
+```
 
-
+To find out the status of ufw:
+```
+ufw status
+```
 
 
 
@@ -209,7 +259,64 @@ we can also check on the state of apache by using:
 Apache should now be serving your domain name. You can test this by navigating to http://your_domain, where you should see something like this:
 
 
+### Basic SQL commands 
+Entering mySQL via a terminal: `mysql -u root -p`
+This will propmt you with a password, if entering with root 
 
+Showing all Databases: `show databases;` 
+Access Database: mysql -u 
+Showing all tables 
+
+
+##### Databases 
+Show all databases:  
+`show databases;`
+
+Create new database:  
+`create database [database];`  
+
+Select database:   
+`use [database];`
+
+Determine what database is in use:   
+`select database();`
+
+##### Tables
+Show all tables:   
+`show tables;`
+
+Show table structure:   
+`describe [table];`
+
+List all indexes on a table:  
+`show index from [table];`
+
+Create new table with columns: 
+`CREATE TABLE [table] ([column] VARCHAR(120), [another-column] DATETIME);`
+
+Adding a column:   
+`ALTER TABLE [table] ADD COLUMN [column] VARCHAR(120);`
+
+Adding a column with an unique, auto-incrementing ID:   
+`ALTER TABLE [table] ADD COLUMN [column] int NOT NULL AUTO_INCREMENT PRIMARY KEY;`
+
+Inserting a record:   
+`INSERT INTO [table] ([column], [column]) VALUES ('[value]', '[value]');`
+
+MySQL function for datetime input:   
+`NOW()`
+
+Selecting records:   
+`SELECT * FROM [table];`
+
+Explain records:   
+`EXPLAIN SELECT * FROM [table];`
+
+Selecting parts of records:   
+`SELECT [column], [another-column] FROM [table];`
+
+Counting records: 
+`SELECT COUNT([column]) FROM [table];`
 
 
 
@@ -219,6 +326,7 @@ Apache should now be serving your domain name. You can test this by navigating t
 
 ## 4 Setting up Virtual Hosts (Not Manditory)
 When using apache, you can set up different *virtual* hosts to save different states of configuration.
+This is great if you want to set up multiple sites on a single computer / IP address 
 
 On ubuntu 18.04, apache has one set up by default to serve documents from the ```/var/www/html``` directory. 
 
@@ -765,13 +873,6 @@ You should be able to go to http://my.public.dns.amazonaws.com/phpmyadmin and ac
 
 
 
-
-
-
-
-
-
-
 ## Issues ive run into 
 ### PHP version not correct 
 Amazon will usually install php version 5 isntead of 7, this can be fixed by running the below commands in sequence: 
@@ -791,5 +892,6 @@ First restart apache to check that all the scritps installed are running:
 `sudo /etc/init.d/httpd restart`  
 
 Otherwise this is due to the package `php73-mysqlnd` missing, you can install it for php7 using:   
-`sudo yum install php73-mysqlnd`   
+`sudo yum install php73-mysqlnd`  
+
 
