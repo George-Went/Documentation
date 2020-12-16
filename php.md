@@ -548,7 +548,6 @@ if(isset($_POST['submit'])) {
    <head>
       <meta charset="UTF-8">
       <title>Document</title>
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
    </head>
    <body>
       <div class="col-sm-3">
@@ -1942,6 +1941,173 @@ while($row = mysqli_fetch_assoc($select_catagories_sidebar))
 The site can also have admin features that allows us to upload articles.
 
 
+## Catagories Admin Page
+We can start off by creating a catagories admin page, allowing for 
+
+### Emmet abbriviation 
+You can speed up the generation of html elements in some code editors by using emmet abberviation. 
+
+```table>thread>tr>th*2```  
+will be refactored automatically into
+```html
+<table>
+   <thread>
+      <tr>         <!-- Thread Row -->
+         <th></th> <!-- Thread Header -->
+         <th></th>
+      </tr>
+   </thread>
+</table>
+```
+
+## Displaying Data in the Catagories Page
+We can create our first page in admin with the ability display catagories we have set up in the CMS site. 
+
+Specifically, the page's table can get data from the catagories table 
+
+catagories table div
+```html
+<div class="col-xs-6">
+   <!-- Connecting to the database and selecting all from catagories table-->
+   <?php
+      $query = "SELECT * FROM catagories";
+      $select_catagories_sidebar = mysqli_query($connection,$query); // send query to mysql server to select all catagories
+   ?>
+   <table class="table table-bordered table-hover">
+      <tr>
+         <th>Id</th>
+         <th>Catagory Title</th>
+      </tr>
+      <tbody>
+         <tr>
+         <!-- Inserting catagory data into a html table -->
+         <?php 
+            //this loops through each post and creates a html title tag with the posts name
+            while($row = mysqli_fetch_assoc($select_catagories_sidebar)) 
+            { // fetches results and puts them in a assosative array
+               $cat_id = $row['cat_id'];
+               $cat_title = $row['cat_title']; // creates a variable called 'cat title with the value of the cat_title query 
+               
+               echo "<tr>";
+               echo "<td>{$cat_id}</td>";
+               echo "<td>{$cat_title}</td>";
+               echo "</tr>";
+            }
+         ?>
+         </tr>
+      </tbody>
+   </table>
+</div>
+```
+
+## Adding New Catagories
+Now that we have exisitng catagories displayed, we can now add the ability to add new catagories to the site via the admin/catagories page.]
+
+We can first create a form to allow users to enter in a new catagory name:   
+```html
+<form action="" method="post">
+   <div class="form-group">
+      <input type="text" name="cat_title">
+   </div>
+   <div class="form-group">
+      <input type="submit" name="submit" value="Add Catagory">
+   </div>
+   <div class="form-group">
+      <input class="btn btn-primary" type="submit" name="submit" value="submit">
+</div>
+```
+Then we can add the php code (above the form) to allow us to create new catagories in the database:  
+```php
+if(isset($_POST['submit'])){
+
+   $cat_title = $_POST['cat_title']; // varaible 'cat_title is given the value of the form input "cat_title"
+
+   if($cat_title == "" || empty($cat_title)){ // if cat_title is empty, tell the user
+      echo "This field should not be empty";
+   } 
+   else 
+   {
+      $query = "INSERT INTO catagories($cat_title)";
+      $query .= "VALUE('{$cat_title}')";
+
+      $create_catagory_query = mysqli_query($connection, $query); // connects to mysql database and peforms the above query
+      
+      // If query fails, report error
+      if(!$create_catagory_query){
+         die('QUERY FAILED' . mysqli_error($connection));
+      }
+   }
+}
+```
+
+
+## Deleting Data
+Sometimes we enter in the wrong infomation and we need to delete the data present. We can add a delete button to our catagories table to allow us to remove unwanted data.
+
+The code below adds a delete button to every catagory in the table, with the added link that creates a speciifc url with the id of the catagory e.g. `catagories.php?delete=1` for javascript.  
+
+```php
+<?php 
+
+   while($row = mysqli_fetch_assoc($select_catagories_sidebar)) 
+   { // fetches results and puts them in a assosative array
+      $cat_id = $row['cat_id'];
+      $cat_title = $row['cat_title']
+      
+      echo "<tr>";
+      echo "<td>{$cat_id}</td>";
+      echo "<td>{$cat_title}</td>";
+      // Adds a link that uses the catagory id as part of the url
+      echo "<td><a href='catagories.php?delete={$cat_id}'>Delete</a></td>";
+      echo "</tr>";
+   }
+?>
+```
+We can also add the code that allows us to remove the catagory from the table when we press the delete button:
+```php
+   if(isset($_GET['delete'])){ 
+      $cat_id = $_GET['delete'];
+   $query = "DELETE FROM catagories WHERE cat_id = {$cat_id}";
+   $delete_query = mysqli_query($connection, $query);
+   }
+```
+
+## Updating Catagories 
+The last part we need to add to out catagories form is being able to update catagories. We can take a lot of the code from both the delete and create options.  
+For the UI, we can use a update button in a similar fashion to the delete button, allowing us to create a custome url that will execute a php script when the used accesses it.
+
+## Adding the ability to update catagories
+We can first start with adding an update button into the existing generated list:  
+catagories.php
+```php
+//grab all catagories
+$query = "SELECT * FROM catagories";  
+
+// send query to mysql server to select all catagories                                       
+$select_catagories_sidebar = mysqli_query($connection,$query); 
+
+//this loops through each post and creates a html title tag with the posts name
+while($row = mysqli_fetch_assoc($select_catagories_sidebar)) 
+{ // fetches results and puts them in a assosative array
+$cat_id = $row['cat_id'];
+$cat_title = $row['cat_title']; // creates a variable called 'cat_title with the value of the cat_title query 
+
+echo "<tr>";
+echo "<td>{$cat_id}</td>";
+echo "<td>{$cat_title}</td>";
+// Generate custom urls that point towards php scripts to update/delete catagories
+echo "<td><a href='catagories.php?update={$cat_id}'>Update</a></td>";
+echo "<td><a href='catagories.php?delete={$cat_id}'>Delete</a></td>";
+echo "</tr>";
+}                 
+```
+when the user clicks on the update button, a url is generated with the catagory name, instead of just activating a php script to delete the catagory, we can use the `cat_id` from this new url to reload the page with additional features.
+
+
+## Creating the Form
+The main feature is that once we have a url with a cat_id, we can then send a query to the database to retrive the current infomation on 
+
+
 
 
 
@@ -2290,9 +2456,31 @@ http://httpd.apache.org/docs/current/howto/htaccess.html#when
 ## Directing everything through index.php
 We can use the `.htaccess` file to allow us to modify how we can request POST data within php code - this is usually enable by defualt on third party apache builders such as xampp or wampp for self hosting testing servers, but for basic apache installs it is needed (sometimes).   
 
->**Note:** dont worry about fully understanding the rewrite code.
-
 The main thing this file does is that any requested route that does not exist, the client will be returned to the index page. (if you've worked with node / django its like being able to set up a 404 page)
+
+>**Note:** To use `.hcaccess` files, you need to set the `AllowOveride` to `All` instead of none. The default location for the apache config files can be found at `/etc/apache2/apache.conf`  
+
+apache.conf files (found at `/etc/apache2`)
+```
+<Directory />
+	Options FollowSymLinks
+	AllowOverride None
+	Require all denied
+</Directory>
+
+<Directory /usr/share>
+	AllowOverride None
+	Require all granted
+</Directory>
+
+<Directory /var/www/>
+	Options Indexes FollowSymLinks
+	AllowOverride All
+	Require all granted
+</Directory>
+```
+
+>**Note:** You may also need to allow mod_rewrites if not using xampp or wamp servers. This can be achived by using `sudo a2enmod rewrite`. Make sure to restart apache2 using `sudo systemctl restart apache2`.
 
 mvc_program/public/.htaccess
 ```
@@ -2315,6 +2503,10 @@ mvc_program/.htaccess
   RewriteRule (.*) public/$1 [L]
 </IfModule>
 ```
+
+This allows us to resirect any non-working url back to the index page. For example a user going to `site/post/red` would be redirected to `site/index.php`
+
+Extra infomation on `.htaccess` files can be found at: https://hostadvice.com/how-to/how-to-enable-apache-mod_rewrite-on-an-ubuntu-18-04-vps-or-dedicated-server/
 
 ## Bootstrap File and Core Classes 
 Calling functions can be done in a php file, however if your constantly using the same classes / functions, it can be easier to group them together into the same class: This is what `bootstrap.php` is for.
