@@ -111,7 +111,7 @@ export PATH=$PATH:$HOME/Documents/Programming/Projects/Bash
 
 
 
-## Copy and past of some commond tasks
+## Copy and Paste of some common tasks
 
 ```bash
 #! /bin/bash
@@ -259,3 +259,4 @@ function greet() {
 
 greet "George" "24"
 ```
+
