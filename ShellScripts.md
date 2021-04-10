@@ -260,3 +260,38 @@ function greet() {
 greet "George" "24"
 ```
 
+## Cron Jobs 
+
+### Creating a cron job 
+A cron job is just a shell script that will be told by the OS to execute at a set time (such as every hour)
+
+There are some prebuit options when running cronjobs, you can place scripts into either:
+```
+/etc/cron.daily
+/etc/cron.hourlyT
+/etc/cron.monthly
+/etc/cron.weekly
+```
+Any scripts placed in these files will run 
+
+### Crontab
+If You need a script to be executed in a more precise fashion, each user has a crontab - a file/ list of crojobs with executions specifed by the user.
+
+Any users running cron jobs can be found by running the command ```crontab -l``` which will show that users current cron jobs that are running in the background.
+
+To display the crontabs of other users (such as root) use:
+```crontab -u root -l```
+
+To edit the current crontab, we can use: 
+```crontab -e```
+
+crontabs are set using: 
+```[minute] [hour] [day-of-month] [month] [day-of-week] [command]```
+
+So to run a command every Monday at 5:30 in the afternoon:
+```30 17 * * 1 /path/to/command```
+
+or every 15 minutes:
+```*/15 * * * * /path/to/command```
+
+There are also online resources to help set up crojobs such as [Crontab Guru](https://crontab.guru/)
