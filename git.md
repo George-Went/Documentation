@@ -85,7 +85,7 @@ remember that you can just use the url as well
 shows the status of the git repo
 
 ## Git branches
-ref: https://www.atlassian.com/git/tutorials/using-branches
+ref: https://www.atlassian.com/git/tutorials/using-branches  
 git branches are multiple versions of the same projectuseful when you want to make changes to a project that you are unsure about, or when multiple people are working on a project.
 
 ### Listing Branches
