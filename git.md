@@ -92,10 +92,10 @@ git branches are multiple versions of the same projectuseful when you want to ma
 ```git branch```
 
 ### Deleting a Branch
-Safe delete (will not remove a branch if you have unmerged changes)
+Safe delete (will not remove a branch if you have unmerged changes)  
 ```git branch -d <branch name>``` 
 
-Force Delete
+Force Delete  
 ```git branch -D <branch name>``` 
 
 ### Listing Remote Branches
@@ -114,7 +114,7 @@ move to the branch you want to be merged into another
     to add the edited files to the master repo
 
 ### Renaming a branch
-```git branch -m <branch>
+```git branch -m <branch>```
 
 
 
