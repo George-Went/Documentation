@@ -30,7 +30,7 @@ This adds all new files to the repo index (.git)
 ```git add . ```     
 
 ### Commiting a file to the local repository
-```git commit "message"```     
+```git commit -m <message> ```     
 This commits the files to the local version of the remote repository
 If you just had a local repository this would be the last step
 
