@@ -85,10 +85,18 @@ remember that you can just use the url as well
 shows the status of the git repo
 
 ## Git branches
+ref: https://www.atlassian.com/git/tutorials/using-branches
 git branches are multiple versions of the same projectuseful when you want to make changes to a project that you are unsure about, or when multiple people are working on a project.
 
 ### Listing Branches
 ```git branch```
+
+### Deleting a Branch
+Safe delete (will not remove a branch if you have unmerged changes)
+```git branch -d <branch name>``` 
+
+Force Delete
+```git branch -D <branch name>``` 
 
 ### Listing Remote Branches
 ```git branch -a```
@@ -99,13 +107,14 @@ git branches are multiple versions of the same projectuseful when you want to ma
 ### Moving to a branch
 ```git checkout <branch name>```
  
-### merging a branch
+### Merging a branch
 move to the branch you want to be merged into another
 ```git merge <branch>```
     This can result in conflicts, so rungit add <filename>
     to add the edited files to the master repo
 
- 
+### Renaming a branch
+```git branch -m <branch>
 
 
 
