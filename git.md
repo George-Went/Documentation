@@ -87,10 +87,16 @@ shows the status of the git repo
 ## Git branches
 git branches are multiple versions of the same projectuseful when you want to make changes to a project that you are unsure about, or when multiple people are working on a project.
 
-### creating a branch
+### Listing Branches
+```git branch```
+
+### Listing Remote Branches
+```git branch -a```
+
+### Creating a branch
 ```git branch <branch name>``` (don't name the branch master)
 
-### moving to a branch
+### Moving to a branch
 ```git checkout <branch name>```
  
 ### merging a branch
@@ -99,6 +105,7 @@ move to the branch you want to be merged into another
     This can result in conflicts, so rungit add <filename>
     to add the edited files to the master repo
 
+ 
 
 
 
