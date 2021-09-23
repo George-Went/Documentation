@@ -216,16 +216,6 @@ git checkout <my branch>
 git merge dev/main
 ```
 
-
-
-
-
-
-
-
-```
-
-
 ## Fork a repository
 
 A fork is basically a clone of a project repository that is completely independent from its original remote / local repository and future commits are pushed to the new repository other than the old one.
