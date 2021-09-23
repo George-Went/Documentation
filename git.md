@@ -185,6 +185,47 @@ git merge new-feature
 git branch -d new-feature
 ```
 
+### "Merge this repository feature that I've finished" 
+```bash
+# stash or commit currrent changes to your own repository 
+git add . 
+git commit -m "commit message"
+# Checkout the branch with the PR (Pull Request) 
+git checkout <feature branch>
+# Test that the new feature works
+# Go to Bitbuket / Github and accept the feature 
+# Tell the person whose PR it is that it has been accepted 
+# Merge the feature into dev / main
+git checkout dev
+git merge <feature branch> 
+# move back to your own repository 
+git checkout <my branch>
+```
+Once Merged into dev 
+```bash
+# stash or commit current changes in your own branch 
+git add .
+git commit -m "commit message"
+# checkout dev / main
+git checkout dev
+# pull the new changes from dev/main - this will include the new PR features that you've added to dev/main
+git pull dev 
+# go back to your own branch
+git checkout <my branch>
+# Merge dev/main into your own branch
+git merge dev/main
+```
+
+
+
+
+
+
+
+
+```
+
+
 ## Fork a repository
 
 A fork is basically a clone of a project repository that is completely independent from its original remote / local repository and future commits are pushed to the new repository other than the old one.
