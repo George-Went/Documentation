@@ -215,6 +215,10 @@ git checkout <my branch>
 # Merge dev/main into your own branch
 git merge dev/main
 ```
+After merging the branch, it is safe to delete it
+```bash
+git branch -d <feature branch>
+```
 
 ## Fork a repository
 
