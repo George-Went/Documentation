@@ -66,6 +66,18 @@ If the response has a `*` before it, it has been saved as the main repository.
 Go to the directory that you want the repo in
 `git clone <remote repo url>`
 
+### Finding out the remote rep
+
+`git remote`
+
+### Pulling new files from the remote repo
+
+`git fetch origin`  
+Downloads commits and files from a remote repository and stores them in your local repository
+It does not merge with your current repo
+
+### Merging the
+
 ### Adding to the staging branch
 
 `git add . `  
@@ -81,11 +93,6 @@ If you just had a local repository this would be the last step
 
 `git push origin master`  
 This pushes files to the origin repo on the master branch
-
-### Pulling new files from the remote repo
-
-`git fetch origin`  
-remember that you can just use the url as well
 
 `Git status`  
 shows the status of the git repo
@@ -123,7 +130,7 @@ Force Delete
 
 move to the branch you want to be merged into another
 `git merge <branch>`
-This can result in conflicts, so rungit add <filename>
+This can result in conflicts, so run git add <filename>
 to add the edited files to the master repo
 
 ### Renaming a branch
@@ -185,64 +192,52 @@ git merge new-feature
 git branch -d new-feature
 ```
 
-### Merge Conflicts
-
-Sometimes when trying to merge a branch into another branch or into main:
+### "Merge this repository feature that I've finished"
 
 ```bash
-error: Merging is not possible because you have unmerged files.
-hint: Fix them up in the work tree, and then use 'git add/rm <file>'
-hint: as appropriate to mark resolution and make a commit.
-fatal: Exiting because of an unresolved conflict.
+# stash or commit currrent changes to your own repository
+git add .
+git commit -m "commit message"
+# Checkout the branch with the PR (Pull Request)
+git checkout <feature branch>
+# Test that the new feature works
+# Go to Bitbuket / Github and accept the feature
+# Tell the person whose PR it is that it has been accepted
+# Merge the feature into dev / main
+git checkout dev
+git merge <feature branch>
+# move back to your own repository
+git checkout <my branch>
 ```
 
-We can use: `git status` to check the merge conflicts
+Once Merged into dev
 
 ```bash
-On branch CRU-97-Frontend-App-Design
-Your branch is ahead of 'origin/CRU-97-Frontend-App-Design' by 4 commits.
-  (use "git push" to publish your local commits)
-
-You have unmerged paths.
-  (fix conflicts and run "git commit")
-  (use "git merge --abort" to abort the merge)
-
-Changes to be committed:
-        modified:   api/Dockerfile
-        new file:   api/src/app/models.py
-        new file:   api/src/app/views/docker_api.py
-
-
-Unmerged paths:
-  (use "git add/rm <file>..." as appropriate to mark resolution)
-        both modified:   api/src/app/__init__.py
-        deleted by them: api/src/app/api.py
-        both modified:   api/src/test/test_docker_api.py
-
-Changes not staged for commit:
-  (use "git add/rm <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        deleted:    api/src/app/templates/404.html
-        deleted:    databaseSetup.sh
-```
-
-We can now clean up
-`git add <file>`: To add a file from the remote repository
-`git rm <file>`: Removing a file from the remote repository
-
-> _Note_: If you're already in conflicted state, and you want to just accept all of theirs:
-
-```
-git checkout --theirs .
+# stash or commit current changes in your own branch
 git add .
+git commit -m "commit message"
+# checkout dev / main
+git checkout dev
+# pull the new changes from dev/main - this will include the new PR features that you've added to dev/main
+git pull dev
+# go back to your own branch
+git checkout <my branch>
+# Merge dev/main into your own branch
+git merge dev/main
 ```
 
-If you want to do the opposite:
+After merging the branch, it is safe to delete it
 
+```bash
+git branch -d <feature branch>
 ```
-git checkout --ours .
-git add .
-```
+
+### Commonly Used Commands
+
+Primer on Terminology
+Remote : Remote Copy located on a github / bitbucket server
+Local: Local snapshot of your _commited_ changes to the files
+Current: Changes you've made that havent been commited to the local repository
 
 ## Fork a repository
 
