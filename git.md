@@ -185,6 +185,65 @@ git merge new-feature
 git branch -d new-feature
 ```
 
+### Merge Conflicts
+
+Sometimes when trying to merge a branch into another branch or into main:
+
+```bash
+error: Merging is not possible because you have unmerged files.
+hint: Fix them up in the work tree, and then use 'git add/rm <file>'
+hint: as appropriate to mark resolution and make a commit.
+fatal: Exiting because of an unresolved conflict.
+```
+
+We can use: `git status` to check the merge conflicts
+
+```bash
+On branch CRU-97-Frontend-App-Design
+Your branch is ahead of 'origin/CRU-97-Frontend-App-Design' by 4 commits.
+  (use "git push" to publish your local commits)
+
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+        modified:   api/Dockerfile
+        new file:   api/src/app/models.py
+        new file:   api/src/app/views/docker_api.py
+
+
+Unmerged paths:
+  (use "git add/rm <file>..." as appropriate to mark resolution)
+        both modified:   api/src/app/__init__.py
+        deleted by them: api/src/app/api.py
+        both modified:   api/src/test/test_docker_api.py
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    api/src/app/templates/404.html
+        deleted:    databaseSetup.sh
+```
+
+We can now clean up
+`git add <file>`: To add a file from the remote repository
+`git rm <file>`: Removing a file from the remote repository
+
+> _Note_: If you're already in conflicted state, and you want to just accept all of theirs:
+
+```
+git checkout --theirs .
+git add .
+```
+
+If you want to do the opposite:
+
+```
+git checkout --ours .
+git add .
+```
+
 ## Fork a repository
 
 A fork is basically a clone of a project repository that is completely independent from its original remote / local repository and future commits are pushed to the new repository other than the old one.
