@@ -70,13 +70,22 @@ Go to the directory that you want the repo in
 
 `git remote`
 
-### Pulling new files from the remote repo
+### Checking the status of your files 
+`Git status`  
+shows the status of the git repo
 
+### Fetching new files from the remote repo
 `git fetch origin`  
 Downloads commits and files from a remote repository and stores them in your local repository
-It does not merge with your current repo
+It does not merge with your current repository 
 
-### Merging the
+### Merging the remote changes 
+`git merge`
+This pulls the remote changes to the branch into yours and can cause merge conflicts 
+
+### Git Pull
+`git pull` 
+This combines fetch and merge, allowing us to download changes from a remote repostiory and immedietly update our own file with the changes made to the remote repository 
 
 ### Adding to the staging branch
 
@@ -84,18 +93,16 @@ It does not merge with your current repo
 This adds all new files to the repo index
 
 ### Commiting a file to the local repository
-
 ``git commit "message"`  
  This commits the files to the local version of the remote repository
 If you just had a local repository this would be the last step
 
 ### Pushing files to the remote repository
-
 `git push origin master`  
 This pushes files to the origin repo on the master branch
 
-`Git status`  
-shows the status of the git repo
+###
+
 
 ## Git branches
 
